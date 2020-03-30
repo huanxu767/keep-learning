@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xh.bigdata.impala.mapper.ImpalaMapper">
+
+    <select id="getBlackList" resultType="map">
+        select * from brms.black_list
+	</select>
+
+
+
+    <select id="testFintech" resultType="map">
+        select * from product_repay limit 10
+	</select>
+
+</mapper>
