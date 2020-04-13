@@ -16,7 +16,7 @@ public class SocketWindowWordCount {
     public static void main(String[] args) throws Exception {
         long i = 0;
         // the port to connect to
-        final int port = 9000;
+        final int port = 9095;
 //        try {
 //            final ParameterTool params = ParameterTool.fromArgs(args);
 //            port = params.getInt("port");
@@ -27,9 +27,8 @@ public class SocketWindowWordCount {
 
         // get the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
         // get input data by connecting to the socket
-        DataStream<String> text = env.socketTextStream("localhost", port, "\n");
+        DataStream<String> text = env.socketTextStream("dev-dw1", port, "\n");
         System.out.println(i++ + "="+text);
         // parse the data, group it, window it, and aggregate the counts
         DataStream<WordWithCount> windowCounts = text
