@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
 /**
- * nc -l 9000
+ * nc -l 9095
  */
 public class SocketWindowWordCount {
 

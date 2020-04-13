@@ -1,0 +1,8 @@
+/ make parameters available in the web interface
+		env.getConfig().setGlobalJobParameters(params);
+
+		// get input data
+		DataSet<String> text = null;
+		if (params.has("input")) {
+			// union all the inputs from text files
+			for (String input : params.getMultiParameterReq
