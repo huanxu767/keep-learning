@@ -20,6 +20,8 @@ public class HbaseTest {
     private Connection con;
 
     private static final String TABLE_NAME = "xhtest:test_xh_demo";
+
+
     /**
      * 获取链接
      * @throws IOException
@@ -266,12 +268,12 @@ public class HbaseTest {
         Table table;
         table = con.getTable(TableName.valueOf(TABLE_NAME));
 
-        Filter filter1 = new SingleColumnValueFilter(Bytes.toBytes("bar"), Bytes.toBytes("b1"), CompareOperator.LESS_OR_EQUAL, Bytes.toBytes("baba1010")); // 当列column1的值为aaa时进行查询
+//        Filter filter1 = new SingleColumnValueFilter(Bytes.toBytes("bar"), Bytes.toBytes("b1"), CompareOperator.LESS_OR_EQUAL, Bytes.toBytes("baba1010")); // 当列column1的值为aaa时进行查询
 
         Filter filter2 = new SingleColumnValueFilter(Bytes.toBytes("bar"), Bytes.toBytes("b1"), CompareOperator.GREATER, Bytes.toBytes("baba1010")); // 当列column1的值为aaa时进行查询
 
         Scan s = new Scan();
-        s.setFilter(filter1);
+//        s.setFilter(filter1);
         s.setFilter(filter2);
 //        s.setOneRowLimit();
         ResultScanner results = table.getScanner(s);

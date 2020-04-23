@@ -28,6 +28,14 @@
             <artifactId>flink-clients_2.11</artifactId>
             <version>1.10.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-common -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-common</artifactId>
+            <version>1.10.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-api-java -->
         <dependency>
             <groupId>org.apache.flink</groupId>

@@ -23,12 +23,10 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-import static org.apache.flink.table.api.Expressions.$;
 
 /**
  * Simple example for demonstrating the use of SQL on a Stream Table in Java.
