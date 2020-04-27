@@ -22,7 +22,16 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-
+/**
+ * bin/kafka-console-consumer.sh --bootstrap-server dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092 \
+ *     --topic streams-wordcount-output \
+ *     --from-beginning \
+ *     --formatter kafka.tools.DefaultMessageFormatter \
+ *     --property print.key=true \
+ *     --property print.value=true \
+ *     --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+ *     --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+ */
 public class Wordcount {
 
     public static void main(final String[] args) throws Exception {
