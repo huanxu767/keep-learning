@@ -9,7 +9,6 @@
         <module>canal</module>
         <module>flink</module>
         <module>kafka</module>
-        <module>dd</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
