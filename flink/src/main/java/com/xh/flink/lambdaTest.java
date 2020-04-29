@@ -14,8 +14,6 @@ public class lambdaTest {
 
 //        t1();
         t3();
-
-
     }
 
 
