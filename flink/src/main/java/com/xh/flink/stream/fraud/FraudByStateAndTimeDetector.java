@@ -1,4 +1,4 @@
-package com.xh.flink.stream.spendreport;
+package com.xh.flink.stream.fraud;
 
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
@@ -10,7 +10,6 @@ import org.apache.flink.walkthrough.common.entity.Alert;
 import org.apache.flink.walkthrough.common.entity.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
 /**
  * 欺诈检测器

@@ -1,4 +1,5 @@
-package com.xh.flink.stream.spendreport;
+package com.xh.flink.stream.fraud;
+
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.walkthrough.common.sink.AlertSink;

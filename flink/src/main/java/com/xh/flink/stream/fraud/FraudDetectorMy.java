@@ -1,4 +1,4 @@
-package com.xh.flink.stream.spendreport;
+package com.xh.flink.stream.fraud;
 
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
