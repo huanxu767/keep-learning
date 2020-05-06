@@ -14,12 +14,12 @@ public class PhoenixDemo {
         ResultSet rset = null;
 
         Connection con = DriverManager.getConnection("jdbc:phoenix:dev-dw1,dev-dw2,dev-dw3,dev-dw4,dev-dw5:2180");
-//        stmt = con.createStatement();
+        stmt = con.createStatement();
 
-//        stmt.executeUpdate("create table test (mykey integer not null primary key, mycolumn varchar)");
-//        stmt.executeUpdate("upsert into test values (1,'Hello')");
-//        stmt.executeUpdate("upsert into test values (2,'World!')");
-//        con.commit();
+        stmt.executeUpdate("create table test (mykey integer not null primary key, mycolumn varchar)");
+        stmt.executeUpdate("upsert into test values (1,'Hello')");
+        stmt.executeUpdate("upsert into test values (2,'World!')");
+        con.commit();
 
         PreparedStatement statement = con.prepareStatement("select * from test");
         rset = statement.executeQuery();
