@@ -6,6 +6,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.MultipleParameterTool;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
 
@@ -19,8 +20,7 @@ public class WordCount {
         DataSet<String> text = env.readTextFile("file:///Users/xuhuan/Desktop/softs/project/learn-one-learn/flink/src/main/resources/files/");
 
         List<String> str = text.collect();
-        for (String a :
-                str) {
+        for (String a : str) {
             System.out.println(a);
         }
 
@@ -30,8 +30,12 @@ public class WordCount {
                         // 根据二元组的第“0”位分组，然后对第“1”位求和
                         .groupBy(0)
                         .sum(1);
+
+        System.out.println(counts.collect());
         //未生效
-        counts.writeAsCsv("file:///Users/xuhuan/Desktop/softs/project/learn-one-learn/flink/src/main/resources/files/output/32.csv", "\n", " ");
+//        counts.writeAsText("file:///Users/xuhuan/Desktop/32.txt", FileSystem.WriteMode.OVERWRITE);
+        counts.writeAsCsv("file:///Users/xuhuan/Desktop/32.csv", "\n", " ");
+
 
     }
     // 自定义函数

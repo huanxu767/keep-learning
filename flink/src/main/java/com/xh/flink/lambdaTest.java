@@ -4,7 +4,9 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.util.Collector;
 
 public class lambdaTest {
@@ -13,7 +15,18 @@ public class lambdaTest {
     public static void main(String[] args) throws Exception {
 
 //        t1();
-        t3();
+//        t3();
+//        t2();
+        Tuple2 tuple2 = new Tuple2();
+        tuple2.setField("1",1);
+        tuple2.setField("2",0);
+
+        Tuple3 tuple3 = new Tuple3();
+        tuple3.setField("1",1);
+        tuple3.setField("2",2);
+        tuple3.setField("3",0);
+        System.out.println(tuple2);
+        System.out.println(tuple3);
     }
 
 
