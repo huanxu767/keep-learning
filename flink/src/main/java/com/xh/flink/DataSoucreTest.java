@@ -1,14 +1,12 @@
 package com.xh.flink;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
+
 import com.xh.flink.pojo.Person;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.StringValue;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +42,9 @@ public class DataSoucreTest {
         System.out.println(csvDataSet.collect());
 
         //CSV 返回pojo includeFields(101)提取部分数据
+        //读整个目录 + 递归
+        Configuration configuration = new Configuration();
+//        configuration.setBoolean("recursive.file.enumeration",true);
         DataSet<Person> personDataSet =
                 env.readCsvFile(FILE_T_PATH)
                         .pojoType(Person.class,"id","name","score");
