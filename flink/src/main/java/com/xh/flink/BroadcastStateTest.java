@@ -25,7 +25,7 @@ public class BroadcastStateTest {
         logger.setLevel(Level.ERROR);
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        //需要广播的数据
+        //需要广播的数据 例如 将用户信息广播
         List<Tuple2<String,String>> broadcastData = Stream.of(Tuple2.of("1","wang"),Tuple2.of("2","zha"),Tuple2.of("3","xu")).collect(Collectors.toList());
         //
         DataSet<Tuple2<String,String>> dataSet = env.fromCollection(broadcastData);
