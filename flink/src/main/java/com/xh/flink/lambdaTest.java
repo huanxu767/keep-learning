@@ -1,6 +1,7 @@
 package com.xh.flink;
 
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.MapPartitionFunction;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -14,21 +15,29 @@ public class lambdaTest {
 
     public static void main(String[] args) throws Exception {
 
-//        t1();
+        t1();
 //        t3();
 //        t2();
-        Tuple2 tuple2 = new Tuple2();
-        tuple2.setField("1",1);
-        tuple2.setField("2",0);
+//        Tuple2 tuple2 = new Tuple2();
+//        tuple2.setField("1",1);
+//        tuple2.setField("2",0);
+//
+//        Tuple3 tuple3 = new Tuple3();
+//        tuple3.setField("1",1);
+//        tuple3.setField("2",2);
+//        tuple3.setField("3",0);
+//        System.out.println(tuple2);
+//        System.out.println(tuple3);
 
-        Tuple3 tuple3 = new Tuple3();
-        tuple3.setField("1",1);
-        tuple3.setField("2",2);
-        tuple3.setField("3",0);
-        System.out.println(tuple2);
-        System.out.println(tuple3);
+//        mapPartitionTest();
     }
 
+
+    private static void mapPartitionTest() throws Exception {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        DataSet<Long> dataSet = env.generateSequence(1,20);
+        dataSet.mapPartition(new MyMapPartitionFunction()).print();
+    }
 
     private static void t1() throws Exception{
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
@@ -82,6 +91,17 @@ public class lambdaTest {
     }
 
 
+    public static class MyMapPartitionFunction implements MapPartitionFunction<Long,Long>{
+
+        @Override
+        public void mapPartition(Iterable<Long> iterable, Collector<Long> collector) throws Exception {
+            long count = 0;
+            for (Long value:iterable){
+                count++;
+            }
+            collector.collect(count);
+        }
+    }
 
 
     public static class DoubleTuple extends Tuple2<Integer, Integer> {
