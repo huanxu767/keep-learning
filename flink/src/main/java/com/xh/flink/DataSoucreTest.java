@@ -35,10 +35,6 @@ public class DataSoucreTest {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = loggerContext.getLogger("root");
         logger.setLevel(Level.ERROR);
-//        logger.
-//        System.out.println(logger.getLevel());
-//        logger.setLevel(Level.INFO);
-
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 

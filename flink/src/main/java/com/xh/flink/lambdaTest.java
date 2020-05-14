@@ -1,5 +1,10 @@
 package com.xh.flink;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import com.xh.flink.pojo.Foo;
+import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.MapPartitionFunction;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -7,15 +12,20 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.util.Collector;
+import org.slf4j.LoggerFactory;
 
 public class lambdaTest {
 
 
     public static void main(String[] args) throws Exception {
 
-        t1();
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger logger = loggerContext.getLogger("root");
+        logger.setLevel(Level.ERROR);
+
+
+//        t1();
 //        t3();
 //        t2();
 //        Tuple2 tuple2 = new Tuple2();
@@ -30,15 +40,77 @@ public class lambdaTest {
 //        System.out.println(tuple3);
 
 //        mapPartitionTest();
+//        fliterTest();
+//        distinctTest();
+//        unionTest();
+//        innerJoinTest();
+        leftOutJoinTest();
     }
+
 
 
     private static void mapPartitionTest() throws Exception {
+//        mapPartition：是一个分区一个分区拿出来的 好处就是以后我们操作完数据了需要存储到mysql中，
+//        这样做的好处就是几个分区拿几个连接，如果用map的话，就是多少条数据拿多少个mysql的连接
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        DataSet<Long> dataSet = env.generateSequence(1,20);
+        DataSet<Long> dataSet = env.generateSequence(1,20).setParallelism(2);
         dataSet.mapPartition(new MyMapPartitionFunction()).print();
     }
 
+    private static void distinctTest() throws Exception {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        DataSet<Tuple2<Integer,String>> dataSet = env.fromElements(Tuple2.of(1,"a"),Tuple2.of(2,"b"),Tuple2.of(2,"c"));
+        dataSet.distinct(0).print();
+    }
+
+    private static void unionTest() throws Exception {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        DataSet<Tuple2<Integer,String>> dataSet1 = env.fromElements(Tuple2.of(1,"a"),Tuple2.of(2,"b"),Tuple2.of(3,"c"));
+        DataSet<Tuple2<Integer,String>> dataSet2 = env.fromElements(Tuple2.of(11,"a"),Tuple2.of(22,"b"),Tuple2.of(33,"c"));
+        DataSet<Tuple2<Integer,String>> dataSet3 = env.fromElements(Tuple2.of(111,"a"),Tuple2.of(222,"b"),Tuple2.of(333,"c"));
+        DataSet<Tuple2<Integer,String>> unionDataSet = dataSet1.union(dataSet2).union(dataSet3);
+        unionDataSet.print();
+    }
+
+    private static void innerJoinTest() throws Exception{
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        DataSet<Tuple2<Integer,String>> dataSet1 = env.fromElements(Tuple2.of(1,"a"),Tuple2.of(2,"b"),Tuple2.of(3,"c"));
+        DataSet<Tuple2<Integer,String>> dataSet2 = env.fromElements(Tuple2.of(1,"aa"),Tuple2.of(2,"bb"),Tuple2.of(3,"cc"),Tuple2.of(4,"dd"));
+        DataSet<Tuple2<Tuple2<Integer,String>,Tuple2<Integer,String>>> dataSet = dataSet1.join(dataSet2).where(0).equalTo(0);
+        dataSet.print();
+        System.out.println("------MyJoinFunction------");
+        DataSet<Foo> fooDataSet = dataSet1.join(dataSet2).where(0).equalTo(0).with(new MyJoinFunction());
+        fooDataSet.print();
+    }
+
+    private static void leftOutJoinTest() throws Exception{
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        DataSet<Tuple2<Integer,String>> dataSet1 = env.fromElements(Tuple2.of(1,"a"),Tuple2.of(22,"b"),Tuple2.of(3,"c"));
+        DataSet<Tuple2<Integer,String>> dataSet2 = env.fromElements(Tuple2.of(1,"aa"),Tuple2.of(2,"bb"),Tuple2.of(3,"cc"),Tuple2.of(4,"dd"));
+        // 右链接 与 全联接 相似
+        DataSet<Foo> leftOutJoinDataSet = dataSet1.leftOuterJoin(dataSet2).where(0).equalTo(0).with(new JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Foo>() {
+            @Override
+            public Foo join(Tuple2<Integer, String> first, Tuple2<Integer, String> second) throws Exception {
+
+                Foo foo = new Foo();
+                foo.setId(first.f0);
+                foo.setName(first.f1);
+                if(second != null){
+                    foo.setOther(second.f1);
+                }
+                return foo;
+            }
+        });
+        leftOutJoinDataSet.print();
+    }
+
+
+    public static void fliterTest() throws Exception {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        DataSet<Long> dataSet = env.generateSequence(1,20);
+        dataSet.filter(i -> i%5==0).print();
+
+    }
     private static void t1() throws Exception{
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         env.fromElements(1,2,3).map(i -> i * i).print();
@@ -91,14 +163,30 @@ public class lambdaTest {
     }
 
 
+    public static class MyJoinFunction implements JoinFunction<Tuple2<Integer,String>,Tuple2<Integer,String>, Foo>{
+
+        @Override
+        public Foo join(Tuple2<Integer, String> integerStringTuple2, Tuple2<Integer, String> integerStringTuple22) throws Exception {
+            Foo foo = new Foo();
+            foo.setId(integerStringTuple2.f0);
+            foo.setName(integerStringTuple2.f1);
+            foo.setOther(integerStringTuple22.f1);
+            return foo;
+        }
+    }
+
     public static class MyMapPartitionFunction implements MapPartitionFunction<Long,Long>{
 
         @Override
         public void mapPartition(Iterable<Long> iterable, Collector<Long> collector) throws Exception {
+            int flag = (int)(Math.random() * 100 + 1);
             long count = 0;
             for (Long value:iterable){
+                System.out.println(flag + "value:" + value);
                 count++;
             }
+            System.out.println(flag + "mapPartition:");
+
             collector.collect(count);
         }
     }
