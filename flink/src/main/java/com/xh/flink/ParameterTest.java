@@ -16,7 +16,7 @@ import org.apache.flink.util.Collector;
 import org.slf4j.LoggerFactory;
 
 /**
- * 通过构造函数传参数
+ * 3种传参方法
  */
 public class ParameterTest {
     public static void main(String[] args) throws Exception {
@@ -83,12 +83,12 @@ public class ParameterTest {
         public void open(Configuration parameters) throws Exception {
             super.open(parameters);
             ExecutionConfig.GlobalJobParameters globalJobParameters = getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
-            Configuration pa = (Configuration)globalJobParameters;
+            Configuration globalParameters = (Configuration)globalJobParameters;
             ConfigOption<String> token = ConfigOptions
                     .key("globalKey")
                     .stringType()
                     .defaultValue("kong");
-            this.token = parameters.getString(token);
+            this.token = globalParameters.getString(token);
         }
         @Override
         public void flatMap(String value, Collector<Tuple2<String, String>> out) throws Exception {
