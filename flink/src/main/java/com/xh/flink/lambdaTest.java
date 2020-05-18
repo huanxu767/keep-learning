@@ -111,12 +111,21 @@ public class lambdaTest {
         dataSet.filter(i -> i%5==0).print();
 
     }
-    private static void t1() throws Exception{
+
+    /**
+     * one to one
+     * @throws Exception
+     */
+    private static void mapTest() throws Exception{
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         env.fromElements(1,2,3).map(i -> i * i).print();
     }
 
-    private static void t2() throws Exception{
+    /**
+     * one to many
+     * @throws Exception
+     */
+    private static void flatMapTest() throws Exception{
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
         DataSet<Integer> input = env.fromElements(1,2,3);
@@ -133,6 +142,10 @@ public class lambdaTest {
         .returns(Types.STRING).print();
     }
 
+    /**
+     * 用类指明
+     * @throws Exception
+     */
     private static void t3() throws Exception{
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         // 使用显式的 ".returns(...)"
