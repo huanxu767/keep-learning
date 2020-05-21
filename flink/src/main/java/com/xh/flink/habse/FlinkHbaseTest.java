@@ -3,19 +3,16 @@ package com.xh.flink.habse;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import com.xh.flink.pojo.Foo;
 import com.xh.flink.pojo.HUser;
-import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FlinkHbaseTest {
@@ -38,13 +35,7 @@ public class FlinkHbaseTest {
     static void write() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        List<Foo> list = new ArrayList<>();
-        IntStream.range(3000,3400).forEach(i->{
-            Foo foo = new Foo();
-            foo.setId(i);
-            foo.setName(i+"xx");
-            list.add(foo);
-        });
+        List<HUser> list = IntStream.range(3000,3400).mapToObj(i -> HUser.builder().rowKey(i+"").name(i+"xx").build()).collect(Collectors.toList());
 
         DataStreamSource dataStream = env.fromCollection(list);
         dataStream.addSink(new HBaseRichSinkFunction());

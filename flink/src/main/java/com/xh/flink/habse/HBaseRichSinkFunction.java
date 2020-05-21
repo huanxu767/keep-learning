@@ -1,8 +1,7 @@
 package com.xh.flink.habse;
 
-import com.xh.flink.pojo.DeviceData;
-
 import com.xh.flink.pojo.Foo;
+import com.xh.flink.pojo.HUser;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -21,7 +20,7 @@ import java.io.IOException;
  *
  * 写入hbase时500条flush一次, 批量插入, 使用的是writeBufferSize
  */
-public class HBaseRichSinkFunction extends RichSinkFunction<Foo>{
+public class HBaseRichSinkFunction extends RichSinkFunction<HUser>{
     private static final Logger logger = LoggerFactory.getLogger(HBaseRichSinkFunction.class);
     private static final String TABLE_NAME = "flink_demo";
 
@@ -56,10 +55,10 @@ public class HBaseRichSinkFunction extends RichSinkFunction<Foo>{
     }
 
     @Override
-    public void invoke(Foo foo, Context context) throws Exception {
-        String RowKey = foo.getId() + "";
+    public void invoke(HUser user, Context context) throws Exception {
+        String RowKey = user.getRowKey();
         Put put = new Put(RowKey.getBytes());
-        put.addColumn("foo".getBytes(), Bytes.toBytes("f1"), Bytes.toBytes(foo.getName()));
+        put.addColumn("foo".getBytes(), Bytes.toBytes("f1"), Bytes.toBytes(user.getName()));
         mutator.mutate(put);
         //每满5条刷新一下数据
         if (count >= 5){
