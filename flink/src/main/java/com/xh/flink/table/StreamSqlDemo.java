@@ -1,4 +1,4 @@
-package com.xh.flink.sql;
+package com.xh.flink.table;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -7,6 +7,7 @@ import com.xh.flink.pojo.SqlPojo;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -83,9 +84,11 @@ public class StreamSqlDemo {
         Table resultTable = bsTableEnv.sqlQuery("select * from h_user where id < 10");
 
         TupleTypeInfo<Tuple3<Integer, Integer,String>> tupleTypeInfo = new TupleTypeInfo<>(Types.INT(),Types.INT(),Types.STRING());
+//        DataStream<Tuple2<Boolean, Tuple3<Integer, Integer, String>>> dataSetTuple2 = bsTableEnv.toRetractStream(resultTable,tupleTypeInfo);
         DataStream<Tuple3<Integer, Integer,String>> dataSetTuple3 = bsTableEnv.toAppendStream(resultTable,tupleTypeInfo);
         dataSetTuple3.print();
         bsTableEnv.execute("tale_job");
+
     }
 
 
