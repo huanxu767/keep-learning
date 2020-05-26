@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.ObjectArrayTypeInfo;
 import org.apache.flink.api.scala.typeutils.Types;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -26,15 +27,13 @@ import org.slf4j.LoggerFactory;
  *
  * {"userId":2,"day":"7","begintime":12873874382,"data":[{"package":"3231","activetime":33333}]}
  */
-public class ConnectorDemo {
+public class ConnectorKafkaDemo {
     private static final String BOOTSTRAP_SERVERS = "dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = loggerContext.getLogger("root");
         logger.setLevel(Level.ERROR);
-
-
 
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useOldPlanner().inStreamingMode().build();
         StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -44,7 +43,7 @@ public class ConnectorDemo {
                 // declare the external system to connect to
                 .connect(
                         new Kafka()
-                                .version("0.11")
+                                .version("universal")// required: valid connector versions are "0.8", "0.9", "0.10", "0.11", and "universal"
                                 .topic("flink-test-input")
                                 .startFromLatest()
                                 .property("group.id","g1")
@@ -100,9 +99,17 @@ public class ConnectorDemo {
                 .inAppendMode()
                 .createTemporaryTable("MyUserTable");
         Table t1 = tableEnvironment.sqlQuery(" select userId from MyUserTable");
-        DataStream<Row> ds = tableEnvironment.toAppendStream(t1,Row.class);
-        ds.print();
+        DataStream<Row> ds1 = tableEnvironment.toAppendStream(t1,Row.class);
+        ds1.print();
 
-        fsEnv.execute("kafka_and_json");
+        Table t2 = tableEnvironment.sqlQuery(" select count(*) from MyUserTable");
+        DataStream<Tuple2<Boolean, Row>> ds2 = tableEnvironment.toRetractStream(t2,Row.class);
+        ds2.print();
+
+        try {
+            fsEnv.execute("kafka_json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

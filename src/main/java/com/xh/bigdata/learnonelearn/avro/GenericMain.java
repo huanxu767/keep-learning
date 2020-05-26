@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Parser;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
