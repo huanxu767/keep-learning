@@ -40,6 +40,7 @@ public class FlinkKafkaConsumerTest {
         System.out.println(consumer.toString());
         stream.print();
         env.execute();
+
     }
 
 }

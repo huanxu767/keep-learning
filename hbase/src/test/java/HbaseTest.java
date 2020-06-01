@@ -19,7 +19,8 @@ public class HbaseTest {
 
     private Connection con;
 
-    private static final String TABLE_NAME = "xhtest:test_xh_demo";
+//    private static final String TABLE_NAME = "xhtest:test_xh_demo";
+    private static final String TABLE_NAME = "xhtest:tt";
 
 
     /**
@@ -33,8 +34,8 @@ public class HbaseTest {
 
         Configuration conf= HBaseConfiguration.create();
 
-        conf.set("hbase.zookeeper.quorum","dw1.hb.com,dw2.hb.com,dw3.hb.com");
-//        conf.set("hbase.zookeeper.quorum","dev-dw1.hbfintech.com");
+//        conf.set("hbase.zookeeper.quorum","dw1.hb.com,dw2.hb.com,dw3.hb.com");
+        conf.set("hbase.zookeeper.quorum","dev-dw1,dev-dw2,dev-dw3,dev-dw4,dev-dw5");
         //连接hbase
         con = ConnectionFactory.createConnection(conf);
 
@@ -79,8 +80,8 @@ public class HbaseTest {
 
         test_teacher_info.setColumnFamily(of);
         //创建列族  2
-        ColumnFamilyDescriptor of1 = ColumnFamilyDescriptorBuilder.of("bar");
-        test_teacher_info.setColumnFamily(of1);
+//        ColumnFamilyDescriptor of1 = ColumnFamilyDescriptorBuilder.of("bar");
+//        test_teacher_info.setColumnFamily(of1);
         //构建
         TableDescriptor build = test_teacher_info.build();
         admin.createTable(build);
