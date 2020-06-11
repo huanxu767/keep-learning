@@ -1,5 +1,8 @@
 package com.xh.flink.kafka;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -9,16 +12,25 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
 public class FlinkKafkaConsumerTest {
 
-    private static final String BOOTSTRAP_SERVERS = "dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092";
-    private static final String TOPIC = "flink_test_topic";
+//    private static final String BOOTSTRAP_SERVERS = "dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092";
+    private static final String BOOTSTRAP_SERVERS = "dw4:9092,dw5:9092,dw6:9092,dw7:9092,dw8:9092";
+
+    private static final String TOPIC = "canal_brms_binlog_topic";
 
 
     public static void main(String[] args) throws Exception {
+
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger logger = loggerContext.getLogger("root");
+        logger.setLevel(Level.ERROR);
+
+
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.enableCheckpointing(5000); // checkpoint every 5000 msecs
 
@@ -31,8 +43,8 @@ public class FlinkKafkaConsumerTest {
 //        DataStream<String> stream = env.addSource(new FlinkKafkaConsumer<>("flink_test_topic",new SimpleStringSchema(),props));
 
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<String>(TOPIC,new SimpleStringSchema(),props);
-//        consumer.setStartFromEarliest();     // start from the earliest record possible
-        consumer.setStartFromLatest();       // start from the latest record
+        consumer.setStartFromEarliest();     // start from the earliest record possible
+//        consumer.setStartFromLatest();       // start from the latest record
 //        consumer.setStartFromTimestamp(...); // start from specified epoch timestamp (milliseconds)
 //        consumer.setStartFromGroupOffsets(); // the default behaviour
 

@@ -29,11 +29,12 @@ public class Producer extends Thread {
     private final KafkaProducer<Integer, String> producer;
     private final String topic;
     private final Boolean isAsync;
+    private static final String BOOTSTRAP_SERVERS = "dw4:9092,dw5:9092,dw6:9092,dw7:9092,dw8:9092";
 
     public Producer(String topic, Boolean isAsync) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092");
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "DemoProducer");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,BOOTSTRAP_SERVERS);
+//        props.put(ProducerConfig.CLIENT_ID_CONFIG, "DemoProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         producer = new KafkaProducer<>(props);
