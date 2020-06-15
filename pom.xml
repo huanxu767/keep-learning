@@ -17,15 +17,15 @@
         <version>2.2.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.xh.bigdata</groupId>
-    <artifactId>learn-one-learn</artifactId>
+    <groupId>com.xh.tech</groupId>
+    <artifactId>keep-learning</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>learn-one-learn</name>
-    <description>Demo project for Spring Boot</description>
+    <name>keep-learning</name>
+    <description>Demo project for java tech</description>
 
     <properties>
         <java.version>1.8</java.version>
-        <mainClass>com.xh.bigdata.learnonelearn.LearnOneLearnApplication</mainClass>
+<!--        <mainClass>com.xh.bigdata.learnonelearn.LearnOneLearnApplication</mainClass>-->
     </properties>
 
 
@@ -95,15 +95,15 @@
 
     <build>
         <finalName>learn-one-learn</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>${mainClass}</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <mainClass>${mainClass}</mainClass>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
 
         <resources>
             <resource>
