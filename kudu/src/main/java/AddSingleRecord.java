@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class AddSingleRecord {
   private static final Logger LOG = LoggerFactory.getLogger(AddSingleRecord.class);
 
-	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dev-dw1:7051");
+	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dw1:7051");
 
 
 	public static void main(String[] args) throws KuduException {
@@ -79,7 +79,7 @@ public class AddSingleRecord {
 	  KuduTable table = client.openTable("movie");
 
 	  long t1 = System.currentTimeMillis();
-	  for (int i = 1000; i < 11000; i++) {
+	  for (int i = 1; i < 10000; i++) {
 		  Insert insert = table.newInsert();
 		  PartialRow row = insert.getRow();
 		  row.addInt(0, i);
