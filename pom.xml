@@ -10,6 +10,8 @@
         <module>flink</module>
         <module>kafka</module>
         <module>flink_jar</module>
+        <module>kudu</module>
+        <module>impala</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

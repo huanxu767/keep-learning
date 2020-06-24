@@ -22,8 +22,6 @@ public class BinlogToHBaseSink extends RichSinkFunction<Tuple2<Dml, Flow>> {
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        System.out.println("open");
-
         org.apache.hadoop.conf.Configuration configuration = HBaseConfiguration.create();
         configuration.set("hbase.zookeeper.quorum", GlobalConfig.ZOOKEEPER);
         hbaseTemplate = new HbaseTemplate(configuration);
@@ -32,7 +30,6 @@ public class BinlogToHBaseSink extends RichSinkFunction<Tuple2<Dml, Flow>> {
 
     @Override
     public void close() throws IOException {
-        System.out.println("close");
         hbaseTemplate.close();
     }
 

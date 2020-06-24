@@ -26,6 +26,7 @@ public class HbaseSyncService {
 
     public void sync(Flow flow, Dml dml) {
         if (flow != null) {
+            System.out.println(dml.toString());
             String type = dml.getType();
             if (type != null && type.equalsIgnoreCase("INSERT")) {
                 insert(flow, dml);
