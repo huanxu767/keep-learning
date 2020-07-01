@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class AddSingleRecord {
   private static final Logger LOG = LoggerFactory.getLogger(AddSingleRecord.class);
 
-	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dw1:7051");
+	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dev-dw1:7051,dev-dw2:7051,dev-dw3:7051");
 
 
 	public static void main(String[] args) throws KuduException {
@@ -26,7 +26,7 @@ public class AddSingleRecord {
 		tableList(client);
 		try {
 			if (!client.tableExists(tableName)) {
-				create(client);
+				create(client,tableName);
 			}
 			populateSingleRow(client);
 //			queryData(client);
@@ -36,7 +36,7 @@ public class AddSingleRecord {
    
   }
   
-  private static void create(KuduClient client) throws KuduException {
+  private static void create(KuduClient client,String tableName) throws KuduException {
 
 	  	LOG.info("in create");
 	    // Create columns for the table.
@@ -56,8 +56,6 @@ public class AddSingleRecord {
 	    CreateTableOptions createOptions =
 	        new CreateTableOptions().addHashPartitions(ImmutableList.of("movie_id"), 4);
 
-	    String tableName = "movie";
-	    
 	    // Create the table.
 	    client.createTable(tableName, schema, createOptions);
 
@@ -75,11 +73,16 @@ public class AddSingleRecord {
   private static void populateSingleRow(KuduClient client) throws KuduException {
 	  
 	  KuduSession session = client.newSession();
-	  
+//	  session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
+	  session.setMutationBufferSpace(1000000);
+
+	  session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_BACKGROUND);
 	  KuduTable table = client.openTable("movie");
 
 	  long t1 = System.currentTimeMillis();
-	  for (int i = 1; i < 10000; i++) {
+	  for (int i = 58685194; i < 100000000; i++) {
+
+		  System.out.println("--------------------" + i);
 		  Insert insert = table.newInsert();
 		  PartialRow row = insert.getRow();
 		  row.addInt(0, i);
@@ -87,14 +90,16 @@ public class AddSingleRecord {
 		  row.addString(2, "2016");
 		  row.addString(3,  "Sci-Fi");
 		  session.apply(insert);
+//		  if( (i+1) / 20000 == 0){
+//			  session.flush();
+//		  }
 	  }
 	  long t2 = System.currentTimeMillis();
 	  System.out.println("-------" + (t2-t1)/1000);
 
 
-	  session.flush();
+//	  session.flush();
 	  session.close();
-	  
 	  LOG.info("added one record" );
 	  
   }
