@@ -1,36 +1,36 @@
-package com.xh.flink.binlogkafkaflinkhbase;
+package com.xh.flink.binlogkafkakudu.sink;
 
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkaflinkhbase.support.Flow;
-import com.xh.flink.binlogkafkaflinkhbase.support.GlobalConfig;
-import com.xh.flink.binlogkafkaflinkhbase.support.HbaseTemplate;
+
+import com.xh.flink.binlogkafkakudu.config.KuduMapping;
+import com.xh.flink.binlogkafkakudu.service.KuduSyncService;
+import com.xh.flink.binlogkafkakudu.support.KuduTemplate;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 
-public class BinlogToHBaseSink extends RichSinkFunction<Tuple2<Dml, Flow>> {
-    private static final Logger logger = LoggerFactory.getLogger(BinlogToHBaseSink.class);
+public class BinlogToKuduSink extends RichSinkFunction<Tuple2<Dml, Flow>> {
+    private static final Logger logger = LoggerFactory.getLogger(BinlogToKuduSink.class);
 
-    private HbaseTemplate hbaseTemplate;
-    private HbaseSyncService hbaseSyncService;
+    private KuduTemplate kuduTemplate;
+    private KuduSyncService kuduSyncService;
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        org.apache.hadoop.conf.Configuration configuration = HBaseConfiguration.create();
-        configuration.set("hbase.zookeeper.quorum", GlobalConfig.ZOOKEEPER);
-        hbaseTemplate = new HbaseTemplate(configuration);
-        hbaseSyncService = new HbaseSyncService(hbaseTemplate);
+
+        kuduTemplate = new KuduTemplate("dw1");
+        kuduSyncService = new KuduSyncService(kuduTemplate);
     }
 
     @Override
     public void close() throws IOException {
-        hbaseTemplate.close();
+        kuduTemplate.closeKuduClient();
     }
 
     /**
@@ -59,8 +59,8 @@ public class BinlogToHBaseSink extends RichSinkFunction<Tuple2<Dml, Flow>> {
      *     birthday:
      */
 
-    public void invoke(Tuple2<Dml, Flow> tuple2, Context context) throws Exception {
-        hbaseSyncService.sync(tuple2.f1,tuple2.f0);
+    public void invoke(Tuple2<Dml, KuduMapping> tuple2, Context context) throws Exception {
+        kuduSyncService.sync(tuple2.f1,tuple2.f0);
     }
 
 }

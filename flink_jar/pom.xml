@@ -137,6 +137,13 @@
             <version>1.10.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.kudu/kudu-client -->
+        <dependency>
+            <groupId>org.apache.kudu</groupId>
+            <artifactId>kudu-client</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

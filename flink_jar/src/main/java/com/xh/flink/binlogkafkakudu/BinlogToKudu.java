@@ -1,9 +1,14 @@
-package com.xh.flink.binlogkafkaflinkhbase;
+package com.xh.flink.binlogkafkakudu;
 
 
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlog.DmlDeserializationSchema;
-import com.xh.flink.binlogkafkaflinkhbase.support.*;
+import com.xh.flink.binlogkafkaflinkhbase.BinlogToHBaseSink;
+import com.xh.flink.binlogkafkaflinkhbase.support.DbusProcessFunction;
+import com.xh.flink.binlogkafkaflinkhbase.support.Flow;
+import com.xh.flink.binlogkafkaflinkhbase.support.FlowSource;
+import com.xh.flink.binlogkafkaflinkhbase.support.GlobalConfig;
+import com.xh.flink.binlogkafkakudu.config.KuduMapping;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -22,12 +27,10 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
-
-
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-public class BinlogToHBase {
+public class BinlogToKudu {
 
 
     public static final MapStateDescriptor<String, Flow> flowStateDescriptor = new MapStateDescriptor<String, Flow>(
@@ -35,7 +38,6 @@ public class BinlogToHBase {
             BasicTypeInfo.STRING_TYPE_INFO,
             TypeInformation.of(new TypeHint<Flow>() {})
     );
-
 
 
     @SneakyThrows
@@ -62,17 +64,10 @@ public class BinlogToHBase {
 //        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
         //定期发送
         Properties props = new Properties();
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "to_hbase");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "to_kudu");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, GlobalConfig.BOOTSTRAP_SERVERS);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-//        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer(GlobalConfig.TOPIC,new SimpleStringSchema(),props);
-//        DataStream<String> dmlStream = env.addSource(consumer);
-//
-//        consumer.setStartFromGroupOffsets();
-//
-//        dmlStream.print();
-
 
         FlinkKafkaConsumer<Dml> consumer = new FlinkKafkaConsumer(GlobalConfig.TOPIC,new DmlDeserializationSchema(),props);
         consumer.setStartFromGroupOffsets();
@@ -84,9 +79,9 @@ public class BinlogToHBase {
 //         读取配置流
         BroadcastStream<Flow> broadcast = env.addSource(new FlowSource()).broadcast(flowStateDescriptor);
 
-        DataStream<Tuple2<Dml, Flow>> connectedStream = keyedMessage.connect(broadcast).process(new DbusProcessFunction()).setParallelism(1);
+        DataStream<Tuple2<Dml, KuduMapping>> connectedStream = keyedMessage.connect(broadcast).process(new DbusProcessFunction()).setParallelism(1);
         connectedStream.addSink(new BinlogToHBaseSink());
-        env.execute("hbase increments ");
+        env.execute("kudu increments ");
     }
 
 }

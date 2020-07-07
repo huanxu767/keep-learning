@@ -21,8 +21,11 @@ public class AddSingleRecord {
 
 	public static void main(String[] args) throws KuduException {
 		String tableName = "movie";
+
 //		String tableName = "impala::default.my_first_table";
 		KuduClient client = new KuduClient.KuduClientBuilder(KUDU_MASTER).build();
+//		dropTable(client,tableName);
+
 		tableList(client);
 		try {
 			if (!client.tableExists(tableName)) {
@@ -33,7 +36,6 @@ public class AddSingleRecord {
 		} finally {
 			client.shutdown();
 		}
-   
   }
   
   private static void create(KuduClient client,String tableName) throws KuduException {
@@ -74,13 +76,13 @@ public class AddSingleRecord {
 	  
 	  KuduSession session = client.newSession();
 //	  session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
-	  session.setMutationBufferSpace(1000000);
+	  session.setMutationBufferSpace(400000);
 
 	  session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_BACKGROUND);
 	  KuduTable table = client.openTable("movie");
 
 	  long t1 = System.currentTimeMillis();
-	  for (int i = 58685194; i < 100000000; i++) {
+	  for (int i = 3000*10000; i < 10000*10000; i++) {
 
 		  System.out.println("--------------------" + i);
 		  Insert insert = table.newInsert();

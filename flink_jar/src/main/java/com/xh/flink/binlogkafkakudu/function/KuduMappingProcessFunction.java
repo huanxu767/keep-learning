@@ -1,14 +1,15 @@
-package com.xh.flink.binlogkafkaflinkhbase.support;
+package com.xh.flink.binlogkafkakudu.function;
 
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkaflinkhbase.BinlogToHBase;
 import com.xh.flink.binlogkafkaflinkhbase.FlowStatusEnum;
+import com.xh.flink.binlogkafkaflinkhbase.support.Flow;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 
-public class DbusProcessFunction extends KeyedBroadcastProcessFunction<String, Dml, Flow, Tuple2<Dml, Flow>> {
+public class KuduMappingProcessFunction extends KeyedBroadcastProcessFunction<String, Dml, Flow, Tuple2<Dml, Flow>> {
 
     @Override
     public void processElement(Dml value, ReadOnlyContext ctx, Collector<Tuple2<Dml, Flow>> out) throws Exception {

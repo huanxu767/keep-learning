@@ -3,6 +3,7 @@ package com.xh.flink.binlogkafkaflinkhbase;
 
 import java.util.*;
 
+import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkaflinkhbase.support.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;

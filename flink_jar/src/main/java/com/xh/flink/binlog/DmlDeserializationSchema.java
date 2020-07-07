@@ -1,7 +1,8 @@
-package com.xh.flink.binlogkafkaflinkhbase.support;
+package com.xh.flink.binlog;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.xh.flink.binlog.Dml;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

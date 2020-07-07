@@ -1,6 +1,5 @@
 import com.xh.flink.binlogkafkaflinkhbase.support.Flow;
-import com.xh.flink.binlogkafkaflinkhbase.support.JdbcUtil;
-import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
+import com.xh.flink.utils.JdbcUtil;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

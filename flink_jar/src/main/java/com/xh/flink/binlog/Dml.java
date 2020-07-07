@@ -1,4 +1,4 @@
-package com.xh.flink.binlogkafkaflinkhbase.support;
+package com.xh.flink.binlog;
 
 import java.io.Serializable;
 import java.util.List;
