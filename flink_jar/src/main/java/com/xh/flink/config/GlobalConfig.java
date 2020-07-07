@@ -10,23 +10,16 @@ public class GlobalConfig implements Serializable {
      */
     public static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
 
-    /**
-     * 本地
-     */
-    public static final String DB_URL = "jdbc:mysql://dev-dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
+    // 本地
+//    public static final String DB_URL = "jdbc:mysql://dev-dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
+    // 生产
+    public static final String DB_URL = "jdbc:mysql://dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
+
     public static final String USER_NAME = "root";
     public static final String PASSWORD = "xuhuan";
 
 
-    /**
-     * 生产
-     */
-//    public static final String DB_URL = "jdbc:mysql://dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
-//    public static final String USER_NAME = "canal";
-//    public static final String PASSWORD = "hb6du8xnC";
-
     public static final String KUDU_MASTER = "dw1:7051";
-
 
     /**
      * 批量提交size

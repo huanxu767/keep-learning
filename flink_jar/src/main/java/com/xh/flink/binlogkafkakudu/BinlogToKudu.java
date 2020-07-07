@@ -8,6 +8,7 @@ import com.xh.flink.binlogkafkakudu.config.KuduMapping;
 import com.xh.flink.binlogkafkakudu.db.FlowKuduSource;
 import com.xh.flink.binlogkafkakudu.function.KuduMappingProcessFunction;
 import com.xh.flink.binlogkafkakudu.sink.BinlogToKuduSink;
+import com.xh.flink.utils.TimeUtils;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -25,11 +26,15 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class BinlogToKudu {
+
+    private static final Logger log = LoggerFactory.getLogger(BinlogToKudu.class);
 
 
     public static final MapStateDescriptor<String, KuduMapping> flowStateDescriptor = new MapStateDescriptor<String, KuduMapping>(
@@ -42,7 +47,7 @@ public class BinlogToKudu {
     @SneakyThrows
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(5000); // checkpoint every 5000 msecs
+        env.enableCheckpointing(20000); // checkpoint every 20000 msecs
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         CheckpointConfig checkpointConfig = env.getCheckpointConfig();
         //语义保证
@@ -69,15 +74,24 @@ public class BinlogToKudu {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
 
         FlinkKafkaConsumer<Dml> consumer = new FlinkKafkaConsumer(GlobalConfig.TOPIC,new DmlDeserializationSchema(),props);
-        consumer.setStartFromGroupOffsets();
+//        consumer.assignTimestampsAndWatermarks(new MessageWaterEmitter());
 
+//        consumer.setStartFromEarliest();     // 尽可能从最早的记录开始
+//        consumer.setStartFromLatest();       // 从最新的记录开始
+        //指定启动时间当天凌晨 配合sqoop 批量导入
+        consumer.setStartFromTimestamp(TimeUtils.getTodayStart()); // 从指定的时间开始（毫秒）
+//        consumer.setStartFromGroupOffsets(); // 默认的方法
         DataStream<Dml> dmlStream = env.addSource(consumer);
-
+//        dmlStream.print();
+//        dmlStream.filter((a) -> (a.getDatabase() + a.getTable()).equals("brmscmpay_credit_apply")).print();
         KeyedStream<Dml, String> keyedMessage = dmlStream.keyBy((a) -> a.getDatabase() + a.getTable());
+//        keyedMessage.print();
 //         读取配置流
         BroadcastStream<KuduMapping> broadcast = env.addSource(new FlowKuduSource()).broadcast(flowStateDescriptor);
 
         DataStream<Tuple2<Dml, KuduMapping>> connectedStream = keyedMessage.connect(broadcast).process(new KuduMappingProcessFunction()).setParallelism(1);
+
+        connectedStream.print();
         connectedStream.addSink(new BinlogToKuduSink());
         env.execute("kudu increments ");
     }
