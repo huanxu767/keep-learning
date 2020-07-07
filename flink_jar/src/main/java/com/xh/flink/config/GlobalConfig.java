@@ -1,20 +1,32 @@
-package com.xh.flink.binlogkafkaflinkhbase.support;
+package com.xh.flink.config;
 
 import java.io.Serializable;
 
 public class GlobalConfig implements Serializable {
 
+
     /**
      * MySQL配置
      */
     public static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
-//    public static final String DB_URL = "jdbc:mysql://dev-dw5:3306/canal_xh_test?useUnicode=true&characterEncoding=utf8";
-//    public static final String USER_NAME = "canal";
-//    public static final String PASSWORD = "canal";
 
-    public static final String DB_URL = "jdbc:mysql://dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
-    public static final String USER_NAME = "canal";
-    public static final String PASSWORD = "hb6du8xnC";
+    /**
+     * 本地
+     */
+    public static final String DB_URL = "jdbc:mysql://dev-dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
+    public static final String USER_NAME = "root";
+    public static final String PASSWORD = "xuhuan";
+
+
+    /**
+     * 生产
+     */
+//    public static final String DB_URL = "jdbc:mysql://dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8";
+//    public static final String USER_NAME = "canal";
+//    public static final String PASSWORD = "hb6du8xnC";
+
+    public static final String KUDU_MASTER = "dw1:7051";
+
 
     /**
      * 批量提交size

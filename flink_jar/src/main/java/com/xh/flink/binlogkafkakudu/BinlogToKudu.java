@@ -3,12 +3,11 @@ package com.xh.flink.binlogkafkakudu;
 
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlog.DmlDeserializationSchema;
-import com.xh.flink.binlogkafkaflinkhbase.BinlogToHBaseSink;
-import com.xh.flink.binlogkafkaflinkhbase.support.DbusProcessFunction;
-import com.xh.flink.binlogkafkaflinkhbase.support.Flow;
-import com.xh.flink.binlogkafkaflinkhbase.support.FlowSource;
-import com.xh.flink.binlogkafkaflinkhbase.support.GlobalConfig;
+import com.xh.flink.config.GlobalConfig;
 import com.xh.flink.binlogkafkakudu.config.KuduMapping;
+import com.xh.flink.binlogkafkakudu.db.FlowKuduSource;
+import com.xh.flink.binlogkafkakudu.function.KuduMappingProcessFunction;
+import com.xh.flink.binlogkafkakudu.sink.BinlogToKuduSink;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.MapStateDescriptor;
@@ -33,10 +32,10 @@ import java.util.concurrent.TimeUnit;
 public class BinlogToKudu {
 
 
-    public static final MapStateDescriptor<String, Flow> flowStateDescriptor = new MapStateDescriptor<String, Flow>(
-            "flowBroadCastState",
+    public static final MapStateDescriptor<String, KuduMapping> flowStateDescriptor = new MapStateDescriptor<String, KuduMapping>(
+            "flowKuduBroadCastState",
             BasicTypeInfo.STRING_TYPE_INFO,
-            TypeInformation.of(new TypeHint<Flow>() {})
+            TypeInformation.of(new TypeHint<KuduMapping>() {})
     );
 
 
@@ -73,14 +72,13 @@ public class BinlogToKudu {
         consumer.setStartFromGroupOffsets();
 
         DataStream<Dml> dmlStream = env.addSource(consumer);
-        dmlStream.print();
 
         KeyedStream<Dml, String> keyedMessage = dmlStream.keyBy((a) -> a.getDatabase() + a.getTable());
 //         读取配置流
-        BroadcastStream<Flow> broadcast = env.addSource(new FlowSource()).broadcast(flowStateDescriptor);
+        BroadcastStream<KuduMapping> broadcast = env.addSource(new FlowKuduSource()).broadcast(flowStateDescriptor);
 
-        DataStream<Tuple2<Dml, KuduMapping>> connectedStream = keyedMessage.connect(broadcast).process(new DbusProcessFunction()).setParallelism(1);
-        connectedStream.addSink(new BinlogToHBaseSink());
+        DataStream<Tuple2<Dml, KuduMapping>> connectedStream = keyedMessage.connect(broadcast).process(new KuduMappingProcessFunction()).setParallelism(1);
+        connectedStream.addSink(new BinlogToKuduSink());
         env.execute("kudu increments ");
     }
 

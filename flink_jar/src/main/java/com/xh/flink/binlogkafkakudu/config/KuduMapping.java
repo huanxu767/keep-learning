@@ -40,7 +40,7 @@ public class KuduMapping {
         Map<String,String> pkMap = new HashMap<>();
         String[] ar = originalTableColumn.trim().split(",");
         for (int i = 0; i < ar.length; i++) {
-            String[] column = ar[i].split(",");
+            String[] column = ar[i].split(":");
             pkMap.put(column[0],column[1]);
         }
         return pkMap;
@@ -50,7 +50,7 @@ public class KuduMapping {
         Map<String,String> columnMap = new HashMap<>();
         String[] ar = originalKuduTableRelationId.trim().split(",");
         for (int i = 0; i < ar.length; i++) {
-            String[] column = ar[i].split(",");
+            String[] column = ar[i].split(":");
             columnMap.put(column[0],column[1]);
         }
         return columnMap;
@@ -135,5 +135,20 @@ public class KuduMapping {
 
     public void setAllMapColumns(Map<String, String> allMapColumns) {
         this.allMapColumns = allMapColumns;
+    }
+
+    @Override
+    public String toString() {
+        return "KuduMapping{" +
+                "database='" + database + '\'' +
+                ", table='" + table + '\'' +
+                ", mapAll=" + mapAll +
+                ", targetTable='" + targetTable + '\'' +
+                ", readBatch=" + readBatch +
+                ", commitBatch=" + commitBatch +
+                ", targetPk=" + targetPk +
+                ", targetColumns=" + targetColumns +
+                ", allMapColumns=" + allMapColumns +
+                '}';
     }
 }

@@ -3,12 +3,21 @@ package com.xh.flink.binlogkafkakudu.config;
 
 public class KuduMappingDO {
 
+    private Long id;                           // 编号
     private String database;                           // 数据库名或schema名
     private String table;                              // 表名
     private String targetTable;                        // 目标表名
 
     private String originalKuduTableRelationId;        // kudu表字段,主键。id:id 多个,分割
     private String originalTableColumn;                // 原始表与kudu表字段映射,逗号分隔。a:a1,b:b1
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getDatabase() {
         return database;

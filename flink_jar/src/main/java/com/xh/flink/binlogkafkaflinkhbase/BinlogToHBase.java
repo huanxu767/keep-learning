@@ -4,6 +4,7 @@ package com.xh.flink.binlogkafkaflinkhbase;
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlog.DmlDeserializationSchema;
 import com.xh.flink.binlogkafkaflinkhbase.support.*;
+import com.xh.flink.config.GlobalConfig;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.MapStateDescriptor;

@@ -16,7 +16,8 @@ import java.util.stream.Stream;
 public class AddSingleRecord {
   private static final Logger LOG = LoggerFactory.getLogger(AddSingleRecord.class);
 
-	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dev-dw1:7051,dev-dw2:7051,dev-dw3:7051");
+//	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dev-dw1:7051,dev-dw2:7051,dev-dw3:7051");
+	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dw1:7051");
 
 
 	public static void main(String[] args) throws KuduException {
@@ -27,15 +28,15 @@ public class AddSingleRecord {
 //		dropTable(client,tableName);
 
 		tableList(client);
-		try {
-			if (!client.tableExists(tableName)) {
-				create(client,tableName);
-			}
-			populateSingleRow(client);
-//			queryData(client);
-		} finally {
-			client.shutdown();
-		}
+//		try {
+//			if (!client.tableExists(tableName)) {
+//				create(client,tableName);
+//			}
+//			populateSingleRow(client);
+////			queryData(client);
+//		} finally {
+//			client.shutdown();
+//		}
   }
   
   private static void create(KuduClient client,String tableName) throws KuduException {

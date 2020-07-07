@@ -2,7 +2,7 @@ package com.xh.flink.binlogkafkaflinkhbase;
 
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkaflinkhbase.support.Flow;
-import com.xh.flink.binlogkafkaflinkhbase.support.GlobalConfig;
+import com.xh.flink.config.GlobalConfig;
 import com.xh.flink.binlogkafkaflinkhbase.support.HbaseTemplate;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;

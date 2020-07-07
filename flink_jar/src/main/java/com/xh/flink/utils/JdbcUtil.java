@@ -1,6 +1,6 @@
 package com.xh.flink.utils;
 
-import com.xh.flink.binlogkafkaflinkhbase.support.GlobalConfig;
+import com.xh.flink.config.GlobalConfig;
 
 import java.sql.*;
 
