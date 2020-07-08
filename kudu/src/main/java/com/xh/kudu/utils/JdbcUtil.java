@@ -1,10 +1,7 @@
-package com.xh.flink.utils;
+package com.xh.kudu.utils;
 
-import com.xh.flink.config.GlobalConfig;
-import com.xh.flink.pojo.DbConfig;
 
 import java.sql.*;
-
 
 
 public class JdbcUtil {

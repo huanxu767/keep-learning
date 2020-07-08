@@ -1,5 +1,7 @@
 package com.xh.flink.binlogkafkaflinkhbase.support;
 
+import com.xh.flink.config.DbSource;
+import com.xh.flink.config.GlobalConfig;
 import com.xh.flink.utils.JdbcUtil;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 
@@ -30,7 +32,7 @@ public class FlowSource extends RichSourceFunction<Flow> {
             ResultSet resultSet = null;
 
             try {
-                connection = JdbcUtil.getConnection();
+                connection = JdbcUtil.getConnection(DbSource.getDbConfig(GlobalConfig.CANAL_DB));
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(query);
                 Flow flow = new Flow();

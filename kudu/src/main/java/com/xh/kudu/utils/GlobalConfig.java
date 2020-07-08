@@ -1,4 +1,4 @@
-package com.xh.flink.config;
+package com.xh.kudu.utils;
 
 import java.io.Serializable;
 
@@ -21,16 +21,5 @@ public class GlobalConfig implements Serializable {
 
     public static final String KUDU_MASTER = "dw1:7051";
 
-    /**
-     * Kafka相关配置
-     */
-//    public static final String BOOTSTRAP_SERVERS = "dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092";
-    public static final String BOOTSTRAP_SERVERS = "dw4:9092,dw5:9092,dw6:9092,dw7:9092,dw8:9092";
-
-    public static final String ZOOKEEPER_ZNODE_PARENT = "/hbase";
-
-    // HBase zookeeper
-    public static final String ZOOKEEPER = "dw1,dw2,dw3";
-    public static final String TOPIC = "canal_binlog_brms_topic";
 
 }

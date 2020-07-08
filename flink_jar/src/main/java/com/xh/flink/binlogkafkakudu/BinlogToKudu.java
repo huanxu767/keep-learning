@@ -89,7 +89,7 @@ public class BinlogToKudu {
 //         读取配置流
         BroadcastStream<KuduMapping> broadcast = env.addSource(new FlowKuduSource()).broadcast(flowStateDescriptor);
 
-        DataStream<Tuple2<Dml, KuduMapping>> connectedStream = keyedMessage.connect(broadcast).process(new KuduMappingProcessFunction()).setParallelism(1);
+        DataStream<Tuple2<Dml, KuduMapping>> connectedStream = keyedMessage.connect(broadcast).process(new KuduMappingProcessFunction()).setParallelism(2);
 
         connectedStream.print();
         connectedStream.addSink(new BinlogToKuduSink());

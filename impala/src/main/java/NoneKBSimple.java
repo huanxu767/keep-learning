@@ -4,8 +4,8 @@ import java.sql.*;
 public class NoneKBSimple {
 
     private static String JDBC_DRIVER = "com.cloudera.impala.jdbc41.Driver";
-//    private static String CONNECTION_URL = "jdbc:impala://impal-api-internal.hbfintech.com:21050/brms;auth=noSasl";
-    private static String CONNECTION_URL = "jdbc:impala://172.20.0.203:21050/brms;auth=noSasl";
+    private static String CONNECTION_URL = "jdbc:impala://impal-api-internal.hbfintech.com:21050/brms;auth=noSasl";
+//    private static String CONNECTION_URL = "jdbc:impala://172.20.0.203:21050/brms;auth=noSasl";
 
 
     static {

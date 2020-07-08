@@ -2,6 +2,8 @@ package com.xh.flink.binlogkafkakudu.db;
 
 import com.xh.flink.binlogkafkakudu.config.KuduMapping;
 import com.xh.flink.binlogkafkakudu.config.KuduMappingDO;
+import com.xh.flink.config.DbSource;
+import com.xh.flink.config.GlobalConfig;
 import com.xh.flink.utils.JdbcUtil;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 
@@ -30,7 +32,7 @@ public class FlowKuduSource extends RichSourceFunction<KuduMapping> {
             ResultSet resultSet = null;
 
             try {
-                connection = JdbcUtil.getConnection();
+                connection = JdbcUtil.getConnection(DbSource.getDbConfig(GlobalConfig.CANAL_DB));
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(query);
                 KuduMappingDO kuduMappingDO = new KuduMappingDO();
