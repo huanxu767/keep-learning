@@ -46,6 +46,12 @@ public class BinlogToKudu {
 
     @SneakyThrows
     public static void main(String[] args) {
+
+        int beginDay = 0;
+        if(args != null && args.length >= 1){
+            beginDay = Integer.parseInt(args[0]);
+        }
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.enableCheckpointing(20000); // checkpoint every 20000 msecs
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -79,7 +85,7 @@ public class BinlogToKudu {
 //        consumer.setStartFromEarliest();     // 尽可能从最早的记录开始
 //        consumer.setStartFromLatest();       // 从最新的记录开始
         //指定启动时间当天凌晨 配合sqoop 批量导入
-        consumer.setStartFromTimestamp(TimeUtils.getTodayStart()); // 从指定的时间开始（毫秒）
+        consumer.setStartFromTimestamp(TimeUtils.getDateStart(beginDay)); // 从指定的时间开始（毫秒）
 //        consumer.setStartFromGroupOffsets(); // 默认的方法
         DataStream<Dml> dmlStream = env.addSource(consumer);
 //        dmlStream.print();
