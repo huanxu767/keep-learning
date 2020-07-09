@@ -20,7 +20,7 @@ public class FlowKuduSource extends RichSourceFunction<KuduMapping> {
 
     private volatile boolean isRunning = true;
 
-    private String query = "select * from kudu_mapping where status = 1";
+    private String query = "select * from rt_kudu_mapping where status = 1";
 
 
     @Override

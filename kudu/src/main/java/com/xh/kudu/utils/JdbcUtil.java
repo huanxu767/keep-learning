@@ -17,7 +17,7 @@ public class JdbcUtil {
         }
 
         try {
-            Connection connection = DriverManager.getConnection(dbConfig.getUrl(), dbConfig.getUserName(), dbConfig.getPassword());
+            Connection connection = DriverManager.getConnection(dbConfig.getConnectionUrl(), dbConfig.getUserName(), dbConfig.getPassword());
             return connection;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -25,14 +25,14 @@ public class JdbcUtil {
         }
     }
 
-    public static Connection getImpalaConnection(String impalaConnectionUrl) {
+    public static Connection getImpalaConnection(DbConfig dbConfig) {
         try {
             Class.forName(GlobalConfig.IMPALA_DRIVER_CLASS);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         try {
-            Connection connection = DriverManager.getConnection(impalaConnectionUrl);
+            Connection connection = DriverManager.getConnection(dbConfig.getConnectionUrl());
             return connection;
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,6 +1,10 @@
 package com.xh.kudu.utils;
 
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,17 +13,65 @@ import java.util.Map;
  */
 public class DbSource {
 
+    private static DbSource dbSource;
+
     private static Map<String, DbConfig> configMap = new HashMap<>();
 
+    private static final String DATA_SOURCE = "select * from rt_data_source";
+
+    private DbSource(){
+
+    }
+//    public static synchronized DbSource getInstance(){
+//        System.out.println("getInstance");
+//
+//        if(dbSource == null){
+//            return new DbSource();
+//        }else{
+//            return dbSource;
+//        }
+//    }
+
+
     static {
-        configMap.put(GlobalConfig.BRMS_DB,DbConfig.builder().dbName("brms_test").url("jdbc:mysql://172.20.0.87:3306/brms_test?useUnicode=true&characterEncoding=utf8").userName("brms_admin").password("brms_admin123").build());
-        configMap.put(GlobalConfig.CANAL_DB,DbConfig.builder().dbName("canal_manager").url("jdbc:mysql://dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8").userName("root").password("xuhuan").build());
+        System.out.println("init dbSource");
+        // 获取
+        configMap.put(GlobalConfig.CANAL_DB,DbConfig.builder().database("canal_manager").connectionUrl("jdbc:mysql://dw1:3306/canal_manager?useUnicode=true&characterEncoding=utf8").userName("root").password("xuhuan").build());
+        Connection connection = JdbcUtil.getConnection(configMap.get(GlobalConfig.CANAL_DB));
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = connection.prepareStatement(DATA_SOURCE);
+            rs = ps.executeQuery();
+            while (rs.next()){
+                DbConfig dbConfig = new DbConfig();
+                dbConfig.setDatabaseKey(rs.getString("database_key"));
+                dbConfig.setType(rs.getString("type"));
+                dbConfig.setDatabase(rs.getString("database"));
+                dbConfig.setConnectionUrl(rs.getString("connection_url"));
+                dbConfig.setUserName(rs.getString("username"));
+                dbConfig.setPassword(rs.getString("password"));
+                configMap.put(dbConfig.getDatabaseKey(),dbConfig);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            JdbcUtil.close(rs,ps,connection);
+        }
+
     }
 
     public static DbConfig getDbConfig(String key){
+        System.out.println("getDbConfig");
         return configMap.get(key);
     }
 
+
+    public static void main(String[] args) {
+        DbConfig dbConfig = DbSource.getDbConfig("brms");
+        System.out.println(dbConfig);
+    }
 }
 
 

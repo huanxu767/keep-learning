@@ -1,6 +1,8 @@
 package com.xh.kudu.utils;
 
 
+import com.xh.kudu.dao.DbOperationImpl;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
 import org.springframework.util.StringUtils;
@@ -9,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * 自动生成KuduMapping
@@ -18,7 +21,7 @@ import java.sql.SQLException;
  */
 public class AutoGenerateKuduMapping {
 
-    public static void main(String[] args) throws KuduException {
+    public static void main(String[] args) throws KuduException, SQLException {
         String dbKey = "brms";
 
         String[] tables = new String[]{
@@ -28,9 +31,28 @@ public class AutoGenerateKuduMapping {
 
         };
         for (int i = 0; i < tables.length; i++) {
-            tranformTable(dbKey,tables[i]);
+//            tranformTable(dbKey,tables[i]);
+            boolean flag = validTableColumn(dbKey,tables[i]);
+            System.out.println(flag);
         }
 
+    }
+
+    /**
+     * 校验 mysql中表 与 hive 中表 字段是否一致
+     * @param bdName
+     * @param tableName
+     */
+    private static boolean validTableColumn(String bdName,String tableName) throws SQLException {
+        DbOperationImpl dbOperation = new DbOperationImpl();
+        // 获取hive中表字段
+        List<String> hiveList = dbOperation.describeHiveTable(bdName,tableName);
+        System.out.println(hiveList);
+
+        //获取mysql表字段
+        List<String> mysqlList = dbOperation.queryMysqlColumns(DbSource.getDbConfig(bdName),tableName);
+        System.out.println(mysqlList);
+        return CollectionUtils.isEqualCollection(hiveList,mysqlList);
     }
 
     public static void tranformTable(String dbKey,String table) throws KuduException {
@@ -89,7 +111,7 @@ public class AutoGenerateKuduMapping {
         //默认情况 主键为第一列
         String id = columns.split(",")[0];
 
-        String sql = "INSERT INTO `kudu_mapping` (`database`,`table`,`original_kudu_table_relation_id`,`original_table_column`,`target_table`)" +
+        String sql = "INSERT INTO `rt_kudu_mapping` (`database`,`table`,`original_kudu_table_relation_id`,`original_table_column`,`target_table`)" +
                 " VALUES (?,?,?,?,?)";
         DbConfig dbConfig = DbSource.getDbConfig(GlobalConfig.CANAL_DB);
         Connection connection = JdbcUtil.getConnection(dbConfig);
@@ -121,7 +143,7 @@ public class AutoGenerateKuduMapping {
         boolean existFlag = false;
         DbConfig dbConfig = DbSource.getDbConfig(GlobalConfig.CANAL_DB);
         Connection connection = JdbcUtil.getConnection(dbConfig);
-        String sql = "select count(*) from kudu_mapping where target_table = ?";
+        String sql = "select count(*) from rt_kudu_mapping where target_table = ?";
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
@@ -160,7 +182,7 @@ public class AutoGenerateKuduMapping {
         ResultSet resultSet = null;
         try {
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,dbConfig.getDbName());
+            preparedStatement.setString(1,dbConfig.getDatabase());
             preparedStatement.setString(2,tableName);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
@@ -213,7 +235,7 @@ public class AutoGenerateKuduMapping {
         ResultSet rs = null;
         PreparedStatement ps = null;
         try {
-            connection = JdbcUtil.getImpalaConnection(GlobalConfig.CONNECTION_URL);
+            connection = JdbcUtil.getImpalaConnection(DbSource.getDbConfig(GlobalConfig.SOURCE_IMPALA));
             ps = connection.prepareStatement(sql);
             flag = ps.execute();
         } catch (Exception e) {

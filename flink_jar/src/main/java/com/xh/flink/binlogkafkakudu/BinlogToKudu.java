@@ -53,7 +53,7 @@ public class BinlogToKudu {
         }
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(20000); // checkpoint every 20000 msecs
+        env.enableCheckpointing(5000); // checkpoint every 5000 msecs
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         CheckpointConfig checkpointConfig = env.getCheckpointConfig();
         //语义保证
@@ -69,9 +69,8 @@ public class BinlogToKudu {
          */
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(10, Time.of(30, TimeUnit.SECONDS)));
 
-//        env.getConfig().setAutoWatermarkInterval(1000);
+        env.getConfig().setAutoWatermarkInterval(1000);
 
-//        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
         //定期发送
         Properties props = new Properties();
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "to_kudu");
