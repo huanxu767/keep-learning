@@ -1,6 +1,7 @@
 package com.xh.kudu.utils;
 
 
+import com.xh.kudu.dao.DbOperation;
 import com.xh.kudu.dao.DbOperationImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kudu.client.KuduClient;
@@ -11,7 +12,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 自动生成KuduMapping
@@ -22,40 +25,93 @@ import java.util.List;
 public class AutoGenerateKuduMapping {
 
     public static void main(String[] args) throws KuduException, SQLException {
+//        String dbKey = "brms";
+//
+//        String[] tables = new String[]{
+//                "cmpay_borrow_apply","cmpay_borrow_report",
+//                "cmpay_credit_apply_operator_info","cmpay_credit_apply_user_info",
+//                "cmpay_credit_apply_bank_info","cmpay_credit_report",
+//
+//        };
+
         String dbKey = "brms";
+        // 初始化指定库
+        initDb(dbKey);
 
-        String[] tables = new String[]{
-                "cmpay_borrow_apply","cmpay_borrow_report",
-                "cmpay_credit_apply_operator_info","cmpay_credit_apply_user_info",
-                "cmpay_credit_apply_bank_info","cmpay_credit_report",
+//        boolean flag = validTableColumn(dbKey, tables);
+//        System.out.println(flag);
 
-        };
-        for (int i = 0; i < tables.length; i++) {
-//            tranformTable(dbKey,tables[i]);
-            boolean flag = validTableColumn(dbKey,tables[i]);
-            System.out.println(flag);
-        }
+
+//        for (int i = 0; i < tables.length; i++) {
+//            transformTable(dbKey,tables[i]);
+//        }
 
     }
 
     /**
-     * 校验 mysql中表 与 hive 中表 字段是否一致
-     * @param bdName
-     * @param tableName
+     * 初始化整个库中的表
+     * 绝大部分情况，mysql表很少删除字段，故hive 表中字段 <= mysql表字段
+     *
+     * @param dbKey
      */
-    private static boolean validTableColumn(String bdName,String tableName) throws SQLException {
-        DbOperationImpl dbOperation = new DbOperationImpl();
+    private static void initDb(String dbKey) throws SQLException {
+        //1 获取hive 指定库所有表
+        DbOperation dbOperation = new DbOperationImpl();
+        List<String> tableNameList = dbOperation.queryHiveMetaStoreTables(dbKey);
+        System.out.println(tableNameList);
+        //2 校验表字段
+        boolean flag = validTableColumn(dbKey,tableNameList);
+        System.out.println("valid table :" + flag);
+
+    }
+    /**
+     * 批量校验 mysql中表 与 hive 中表 字段是否一致
+     * @param  dbName
+     * @param tableNameList
+     */
+    private static boolean validTableColumn(String dbName,List<String> tableNameList) throws SQLException {
+        boolean flag = true;
+        //hive中本不应该存在的
+        List<String> hiveShouldNotExistedTables = new ArrayList<>();
+        //存在但列不一致的
+        List<String> columnsNotConsistentTables = new ArrayList<>();
+
+        DbOperation dbOperation = new DbOperationImpl();
         // 获取hive中表字段
-        List<String> hiveList = dbOperation.describeHiveTable(bdName,tableName);
-        System.out.println(hiveList);
+        Map<String,List<String>> hiveMap = dbOperation.queryHiveMetaStoreColumns(dbName,tableNameList);
+        System.out.println(hiveMap);
 
         //获取mysql表字段
-        List<String> mysqlList = dbOperation.queryMysqlColumns(DbSource.getDbConfig(bdName),tableName);
-        System.out.println(mysqlList);
-        return CollectionUtils.isEqualCollection(hiveList,mysqlList);
+        Map<String,List<String>> mysqlColumnsMap = dbOperation.queryMysqlColumns(DbSource.getDbConfig(dbName),tableNameList);
+        System.out.println(mysqlColumnsMap);
+
+
+        for (String tableName:tableNameList){
+
+            List<String> hiveColumns= hiveMap.get(tableName);
+            List<String> mysqlColumns= mysqlColumnsMap.get(tableName);
+
+            boolean rowFlag = CollectionUtils.isEqualCollection(hiveColumns,mysqlColumns);
+            if(!rowFlag){
+                flag = false;
+                if(mysqlColumns == null || mysqlColumns.size() == 0){
+                    hiveShouldNotExistedTables.add(tableName);
+                }else{
+                    columnsNotConsistentTables.add(tableName);
+                }
+                System.out.println("---------" + tableName + "----------" + rowFlag);
+                System.out.println(hiveColumns);
+                System.out.println(mysqlColumns);
+            }
+
+        }
+        System.out.println("hive中本不应该存在的" + hiveShouldNotExistedTables);
+        System.out.println("存在但列不一致的" + columnsNotConsistentTables);
+
+        return flag;
     }
 
-    public static void tranformTable(String dbKey,String table) throws KuduException {
+    public static void transformTable(String dbKey,String table) throws KuduException {
         String targetTable = "impala::kudu_" + dbKey + "." + table;
         // 验证表是否已经配置
         boolean existFlag = isExist(targetTable);

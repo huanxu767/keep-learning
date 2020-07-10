@@ -13,8 +13,6 @@ import java.util.Map;
  */
 public class DbSource {
 
-    private static DbSource dbSource;
-
     private static Map<String, DbConfig> configMap = new HashMap<>();
 
     private static final String DATA_SOURCE = "select * from rt_data_source";
@@ -22,17 +20,6 @@ public class DbSource {
     private DbSource(){
 
     }
-//    public static synchronized DbSource getInstance(){
-//        System.out.println("getInstance");
-//
-//        if(dbSource == null){
-//            return new DbSource();
-//        }else{
-//            return dbSource;
-//        }
-//    }
-
-
     static {
         System.out.println("init dbSource");
         // 获取
@@ -63,7 +50,6 @@ public class DbSource {
     }
 
     public static DbConfig getDbConfig(String key){
-        System.out.println("getDbConfig");
         return configMap.get(key);
     }
 

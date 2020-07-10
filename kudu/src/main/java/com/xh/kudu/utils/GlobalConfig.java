@@ -20,4 +20,5 @@ public class GlobalConfig implements Serializable {
     public static final String KUDU_MASTER = "dw1:7051";
 
 
+    public static final String SOURCE_METASTORE = "metastore";
 }
