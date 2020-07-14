@@ -2,7 +2,7 @@ package com.xh.kudu.Thread;
 
 import com.xh.kudu.dao.DbOperation;
 import com.xh.kudu.dao.DbOperationImpl;
-import com.xh.kudu.utils.DbConfig;
+import com.xh.kudu.pojo.DbConfig;
 import lombok.SneakyThrows;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class MySqlColumnsThread implements Runnable{
         System.out.println("begin run mysql column");
         DbOperation dbOperation = new DbOperationImpl();
         // 获取hive中表字段
-        columnMap = dbOperation.queryMysqlColumns(dbConfig,tableList);
+        columnMap = dbOperation.queryMysqlColumns(dbConfig,tableList,true);
     }
 
 }

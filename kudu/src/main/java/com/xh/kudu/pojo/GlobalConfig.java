@@ -1,4 +1,4 @@
-package com.xh.kudu.utils;
+package com.xh.kudu.pojo;
 
 import java.io.Serializable;
 

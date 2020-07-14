@@ -1,6 +1,9 @@
 package com.xh.kudu.utils;
 
 
+import com.xh.kudu.pojo.DbConfig;
+import com.xh.kudu.pojo.GlobalConfig;
+
 import java.sql.*;
 
 
@@ -8,7 +11,7 @@ public class JdbcUtil {
 
 
 
-    public static Connection getConnection(DbConfig dbConfig,String driveClass) {
+    public static Connection getConnection(DbConfig dbConfig, String driveClass) {
 
         try {
             Class.forName(driveClass);

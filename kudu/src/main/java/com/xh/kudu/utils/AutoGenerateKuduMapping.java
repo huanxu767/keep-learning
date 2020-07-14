@@ -3,6 +3,10 @@ package com.xh.kudu.utils;
 
 import com.xh.kudu.dao.DbOperation;
 import com.xh.kudu.dao.DbOperationImpl;
+import com.xh.kudu.pojo.DbConfig;
+import com.xh.kudu.pojo.DbSource;
+import com.xh.kudu.pojo.GlobalConfig;
+import com.xh.kudu.pojo.TransmissionTableConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
@@ -15,6 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 自动生成KuduMapping
@@ -24,48 +29,99 @@ import java.util.Map;
  */
 public class AutoGenerateKuduMapping {
 
+    /**
+     * 是否忽视大字段
+     * 有 4 种 TEXT 类型：TINYTEXT、TEXT、MEDIUMTEXT 和 LONGTEXT。对应的这 4 种 BLOB 类型
+     */
+    private static boolean IGNORE_TEXT_BLOB = true;
+
     public static void main(String[] args) throws KuduException, SQLException {
-//        String dbKey = "brms";
-//
-//        String[] tables = new String[]{
-//                "cmpay_borrow_apply","cmpay_borrow_report",
-//                "cmpay_credit_apply_operator_info","cmpay_credit_apply_user_info",
-//                "cmpay_credit_apply_bank_info","cmpay_credit_report",
-//
-//        };
 
         String dbKey = "brms";
         // 初始化指定库
         initDb(dbKey);
 
-//        boolean flag = validTableColumn(dbKey, tables);
-//        System.out.println(flag);
-
-
-//        for (int i = 0; i < tables.length; i++) {
-//            transformTable(dbKey,tables[i]);
-//        }
-
     }
 
     /**
+     *
      * 初始化整个库中的表
-     * 绝大部分情况，mysql表很少删除字段，故hive 表中字段 <= mysql表字段
+     * 以hive库表为参考
+     * 绝大部分情况，mysql表很少删除表、字段，但是会频繁新增表，故绝大部分情况 hive 表中字段 <= mysql表字段，hive中表 <= mysql表
      *
      * @param dbKey
      */
-    private static void initDb(String dbKey) throws SQLException {
-        //1 获取hive 指定库所有表
-        DbOperation dbOperation = new DbOperationImpl();
-        List<String> tableNameList = dbOperation.queryHiveMetaStoreTables(dbKey);
-        System.out.println(tableNameList);
-        //2 校验表字段
-        boolean flag = validTableColumn(dbKey,tableNameList);
-        System.out.println("valid table :" + flag);
+    private static void initDb(String dbKey) throws SQLException, KuduException {
 
+        DbOperation dbOperation = new DbOperationImpl();
+
+        //1 查询配置表 rt_transmission_table_config 应同步但尚未同步的
+        List<TransmissionTableConfig> transmissionTableConfigs = dbOperation.queryUnTransmissionTable(dbKey);
+        List<String> transmissionTableConfigList = transmissionTableConfigs.stream().map(a -> a.getTable()).collect(Collectors.toList());;
+
+        //2 检查 这些表 hive中是否存在
+        //2.1 获取hive 指定库所有表
+        List<String> hiveTableNameList = dbOperation.queryHiveMetaStoreTables(dbKey);
+        System.out.println(hiveTableNameList);
+        //2.2 tableNameList 是否包含 transmissionTableConfigs
+        List<String> transmissionTables = transmissionTableConfigs.stream().map(a -> a.getTable()).collect(Collectors.toList());
+        System.out.println(transmissionTables);
+
+        List<String> notInHiveTables = transmissionTableConfigList.stream().filter(s -> !hiveTableNameList.contains(s)).collect(Collectors.toList());
+        if(!notInHiveTables.isEmpty()){
+            System.err.println("quit with notInHiveTables:" + notInHiveTables);
+            return;
+        }
+
+        //3 检查 这些表 mysql 与 hive中字段是否一致
+        boolean flag = validTableColumn(dbKey,transmissionTableConfigList);
+        System.out.println("valid table columns :" + flag);
+        if(!flag){
+            System.err.println("quit,because the field is inconsistent");
+            return;
+        }
+
+        //3 检查 没有主键的表
+        Map<String,String> tablePrimaryKey = checkTablePrimaryKey(dbKey,transmissionTableConfigList);
+        if(tablePrimaryKey == null){
+            System.out.println("quit,the table without primary key");
+            return;
+        }
+
+        // 检查完毕 ，开始同步
+        for (String tableName:transmissionTableConfigList){
+            //查询table主键
+            transformTable(dbKey,tableName,tablePrimaryKey.get(tableName));
+        }
+
+    }
+
+    /**
+     * 检查表中是否存在主键并取出主键
+     * @param dbKey
+     * @param tableNameList
+     * @return
+     * @throws SQLException
+     */
+    private static Map<String,String> checkTablePrimaryKey(String dbKey,List<String> tableNameList) throws SQLException {
+        Map<String,String> map;
+        DbOperation dbOperation = new DbOperationImpl();
+        List<String> noPkTables = new ArrayList<>();
+        boolean flag = true;
+        map = dbOperation.queryPk(DbSource.getDbConfig(dbKey),tableNameList);
+
+        for (String tableName:tableNameList){
+            if(StringUtils.isEmpty(map.get(tableName))) {
+                flag = false;
+                System.err.println(tableName + "无主键");
+                noPkTables.add(tableName);
+            }
+        }
+        return flag?map:null;
     }
     /**
      * 批量校验 mysql中表 与 hive 中表 字段是否一致
+     * tableNameList移除结构不一致的表
      * @param  dbName
      * @param tableNameList
      */
@@ -82,15 +138,13 @@ public class AutoGenerateKuduMapping {
         System.out.println(hiveMap);
 
         //获取mysql表字段
-        Map<String,List<String>> mysqlColumnsMap = dbOperation.queryMysqlColumns(DbSource.getDbConfig(dbName),tableNameList);
+        Map<String,List<String>> mysqlColumnsMap = dbOperation.queryMysqlColumns(DbSource.getDbConfig(dbName),tableNameList,IGNORE_TEXT_BLOB);
         System.out.println(mysqlColumnsMap);
 
 
         for (String tableName:tableNameList){
-
             List<String> hiveColumns= hiveMap.get(tableName);
             List<String> mysqlColumns= mysqlColumnsMap.get(tableName);
-
             boolean rowFlag = CollectionUtils.isEqualCollection(hiveColumns,mysqlColumns);
             if(!rowFlag){
                 flag = false;
@@ -103,35 +157,51 @@ public class AutoGenerateKuduMapping {
                 System.out.println(hiveColumns);
                 System.out.println(mysqlColumns);
             }
-
         }
-        System.out.println("hive中本不应该存在的" + hiveShouldNotExistedTables);
-        System.out.println("存在但列不一致的" + columnsNotConsistentTables);
-
+        System.out.println("hive中本不应该存在的：" + hiveShouldNotExistedTables);
+        System.out.println("存在但列不一致的：");
+        columnsNotConsistentTables.stream().forEach(a -> System.out.println("'"+a+"',"));
         return flag;
     }
 
-    public static void transformTable(String dbKey,String table) throws KuduException {
+    public static void transformTable(String dbKey,String table,String pk) throws SQLException {
+
+        DbOperation dbOperation = new DbOperationImpl();
+
+
         String targetTable = "impala::kudu_" + dbKey + "." + table;
         // 验证表是否已经配置
         boolean existFlag = isExist(targetTable);
         if(existFlag){
-            System.out.println("该表已配置：" + targetTable);
+            System.err.println("该表已配置：" + targetTable);
             //存在
             return;
         }
 
         String columns = getColumns(dbKey,table);
         if (StringUtils.isEmpty(columns)){
-            System.out.println("不存在该表" + dbKey + " " + table);
+            System.err.println("不存在该表" + dbKey + " " + table);
         }
         // 2 组装插入数据
         int updateSqlResult = configKuduMapping(dbKey,table,columns,targetTable);
         System.out.println(targetTable + " " + updateSqlResult);
 
         // 3 校验创建并初始化kudu
-        createKudu(dbKey,table,targetTable,"id",8);
-        // 4 暂停flink、
+
+        int hasTransmission = 0;
+        String structuralDifferences = null;
+        try {
+            createKudu(dbKey,table,targetTable,pk,8);
+            hasTransmission = 1;
+            structuralDifferences = "success";
+        } catch (Exception e) {
+            hasTransmission = 2;
+            structuralDifferences = e.getMessage();
+            e.printStackTrace();
+        }
+
+        dbOperation.updateTableConfig(dbKey,table,hasTransmission,structuralDifferences);
+
     }
 
     /**
@@ -141,7 +211,7 @@ public class AutoGenerateKuduMapping {
      * @param targetTable
      * @return
      */
-    private static void createKudu(String dbKey, String table, String targetTable,String primaryKey,int partition) throws KuduException {
+    private static void createKudu(String dbKey, String table, String targetTable,String primaryKey,int partition) throws KuduException, SQLException {
 
         //通过kudu判断表是否存在 impala 无法直接判断表是否存在，通过报错比较粗暴
         boolean tableExistsFlag = validKuduTableIsExist(targetTable);
@@ -279,7 +349,7 @@ public class AutoGenerateKuduMapping {
      * @param primaryKey
      * @param partition
      */
-    private static boolean createKuduByImpala(String dbKey,String table,String primaryKey,int partition){
+    private static boolean createKuduByImpala(String dbKey,String table,String primaryKey,int partition) throws SQLException{
         boolean flag = false;
         String relatedKuduDb = "kudu_" + dbKey;
         String sql = "create table " + relatedKuduDb +"." + table + " " +
@@ -294,8 +364,6 @@ public class AutoGenerateKuduMapping {
             connection = JdbcUtil.getImpalaConnection(DbSource.getDbConfig(GlobalConfig.SOURCE_IMPALA));
             ps = connection.prepareStatement(sql);
             flag = ps.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             JdbcUtil.close(rs,ps,connection);
         }

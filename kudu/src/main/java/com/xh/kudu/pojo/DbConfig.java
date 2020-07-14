@@ -1,4 +1,4 @@
-package com.xh.kudu.utils;
+package com.xh.kudu.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,5 +1,7 @@
-package com.xh.kudu.utils;
+package com.xh.kudu.pojo;
 
+
+import com.xh.kudu.utils.JdbcUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
