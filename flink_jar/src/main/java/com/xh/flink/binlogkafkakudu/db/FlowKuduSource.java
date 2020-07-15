@@ -38,7 +38,7 @@ public class FlowKuduSource extends RichSourceFunction<KuduMapping> {
                 KuduMappingDO kuduMappingDO = new KuduMappingDO();
 
                 while (resultSet.next()) {
-                    System.out.println(resultSet.getString("table"));
+//                    System.out.println(resultSet.getString("table"));
                     kuduMappingDO.setId(resultSet.getLong("id"));
                     kuduMappingDO.setDatabase(resultSet.getString("database"));
                     kuduMappingDO.setTable(resultSet.getString("table"));

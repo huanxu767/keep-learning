@@ -12,8 +12,6 @@ import org.apache.kudu.client.ListTablesResponse;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  *
  */
@@ -57,12 +55,6 @@ public class KuduServiceImpl implements KuduService {
         }
 
 
-    }
-
-    public static void main(String[] args) throws SQLException {
-        KuduService kuduService = new KuduServiceImpl();
-        kuduService.initTransmissionTableConfig("fintech");
-        System.out.println();
     }
 
 
