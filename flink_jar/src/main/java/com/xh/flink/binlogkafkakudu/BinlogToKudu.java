@@ -98,7 +98,7 @@ public class BinlogToKudu {
 
         connectedStream.print();
         connectedStream.addSink(new BinlogToKuduSink());
-        env.execute("kudu increments ");
+        env.execute("kudu increments realtime ");
     }
 
 }

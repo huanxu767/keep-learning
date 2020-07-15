@@ -3,7 +3,11 @@ package com.xh.kudu.service;
 import com.xh.kudu.dao.DbOperation;
 import com.xh.kudu.dao.DbOperationImpl;
 import com.xh.kudu.pojo.DbSource;
+import com.xh.kudu.pojo.GlobalConfig;
 import com.xh.kudu.pojo.TransmissionTableConfig;
+import org.apache.kudu.client.KuduClient;
+import org.apache.kudu.client.KuduException;
+import org.apache.kudu.client.ListTablesResponse;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -35,6 +39,23 @@ public class KuduServiceImpl implements KuduService {
         //初始化 尚未配置的表
         dbOperation.insertTableConfig(dbKey,noConfigTables);
         return false;
+
+    }
+
+    @Override
+    public void dropTables(String dbKey) throws KuduException {
+        KuduClient client = new KuduClient.KuduClientBuilder(GlobalConfig.KUDU_MASTER).build();
+        try {
+            ListTablesResponse listTablesResponse = client.getTablesList();
+            List<String> tblist = listTablesResponse.getTablesList();
+            for(String tableName : tblist) {
+                System.out.println(tableName);
+                client.deleteTable(tableName);
+            }
+        }finally {
+            client.shutdown();
+        }
+
 
     }
 

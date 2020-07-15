@@ -295,13 +295,13 @@ public class AutoGenerateKuduMapping {
      * @return
      */
     private static String getColumns(String dbKey,String tableName){
-        String columns = null;
+        StringBuilder columns = new StringBuilder();
         // 1.1 获取brms库链接
         DbConfig dbConfig = DbSource.getDbConfig(dbKey);
         // 1.2 获取数据库链接
         Connection connection = JdbcUtil.getConnection(dbConfig);
         // 1.3 查询表结构
-        String sql = "select GROUP_CONCAT(CONCAT(COLUMN_NAME,':',COLUMN_NAME)) column_str" +
+        String sql = "select CONCAT(COLUMN_NAME,':',COLUMN_NAME) column_str" +
                 "        from information_schema.columns " +
                 "        where table_schema = ? and table_name = ?";
         PreparedStatement preparedStatement = null;
@@ -312,14 +312,14 @@ public class AutoGenerateKuduMapping {
             preparedStatement.setString(2,tableName);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
-                columns = resultSet.getString(1);
+                columns.append(resultSet.getString(1) + ",");
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }finally {
             JdbcUtil.close(resultSet,preparedStatement,connection);
         }
-        return columns;
+        return columns.substring(0,columns.length()-1);
     }
 
     /**
