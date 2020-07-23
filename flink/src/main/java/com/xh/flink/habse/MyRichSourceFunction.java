@@ -30,7 +30,7 @@ public class MyRichSourceFunction extends RichSourceFunction<HUser> {
         super.open(parameters);
 
         org.apache.hadoop.conf.Configuration configuration = HBaseConfiguration.create();
-        configuration.set("hbase.zookeeper.quorum","dev-dw1,dev-dw2,dev-dw3,dev-dw4,dev-dw5");
+        configuration.set("hbase.zookeeper.quorum","dw1,dw2,dw3");
         conn = ConnectionFactory.createConnection(configuration);
         table = conn.getTable(TableName.valueOf(HUser.TABLE_NAME));
         Scan scan = new Scan();

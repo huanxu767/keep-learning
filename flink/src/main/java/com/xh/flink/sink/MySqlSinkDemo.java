@@ -2,6 +2,7 @@ package com.xh.flink.sink;
 
 import com.xh.flink.pojo.MysqlUser;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.ArrayList;
@@ -16,7 +17,10 @@ public class MySqlSinkDemo {
         List<MysqlUser> list = IntStream.range(1,100).mapToObj(i -> MysqlUser.builder().id(new Long(i)).age(i+1).name(i+"xiaoming").build()).collect(Collectors.toList());
 
         DataStream<MysqlUser> dataStream = env.fromCollection(list);
-        dataStream.addSink(new MysqlSinkFunction());
+//        dataStream.addSink(new MysqlSinkFunctionPa()).setParallelism(1);
+
+
+        DataStreamSink ds = dataStream.addSink(new MysqlSinkFunction()).setParallelism(1);
         env.execute();
     }
 }
