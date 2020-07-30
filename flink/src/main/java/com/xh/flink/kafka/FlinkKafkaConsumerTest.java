@@ -3,14 +3,10 @@ package com.xh.flink.kafka;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +31,11 @@ public class FlinkKafkaConsumerTest {
         env.enableCheckpointing(5000); // checkpoint every 5000 msecs
 
         Properties props = new Properties();
+//        props.put(ConsumerConfig.GROUP_ID_CONFIG, "flink_kafka_test_group");
 
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "flink_kafka_test_group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "transactions");
+
+
         // only required for Kafka 0.8
 //        properties.setProperty("zookeeper.connect", "localhost:2181");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,BOOTSTRAP_SERVERS);

@@ -12,7 +12,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.descriptors.*;
 import org.apache.flink.types.Row;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,9 @@ import org.slf4j.LoggerFactory;
  * 表源提供对存储在外部系统（例如数据库，键值存储，消息队列或文件系统）中的数据的访问。表接收器将表发送到外部存储系统。根据源和接收器的类型，它们支持不同的格式，例如CSV，Parquet或ORC。
  * 本页介绍如何声明内置表源和/或表接收器以及如何在Flink中注册它们。注册源或接收器后，可以通过Table API和SQL语句对其进行访问。
  *
- * ./kafka-console-producer.sh --broker-list dev-dw1:9092 --topic flink-test-input
+ * ./kafka-console-producer.sh --broker-list dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092, --topic flink-test-table-input
  *
- * {"userId":2,"day":"7","begintime":12873874382,"data":[{"package":"3231","activetime":33333}]}
+ * {"userId":1,"day":"7","begintime":12873874382,"data":[{"package":"3231","activetime":33333}]}
  */
 public class ConnectorKafkaDemo {
     private static final String BOOTSTRAP_SERVERS = "dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092";
@@ -44,8 +45,9 @@ public class ConnectorKafkaDemo {
                 .connect(
                         new Kafka()
                                 .version("universal")// required: valid connector versions are "0.8", "0.9", "0.10", "0.11", and "universal"
-                                .topic("flink-test-input")
-                                .startFromLatest()
+                                .topic("flink-test-table-input")
+//                                .startFromLatest()
+                                .startFromEarliest()
                                 .property("group.id","g1")
                                 .property("zookeeper.connect", "dev-dw1,dev-dw2,dev-dw3,dev-dw4,dev-dw5")
                                 .property("bootstrap.servers", BOOTSTRAP_SERVERS)
@@ -105,7 +107,6 @@ public class ConnectorKafkaDemo {
         Table t2 = tableEnvironment.sqlQuery(" select count(*) from MyUserTable");
         DataStream<Tuple2<Boolean, Row>> ds2 = tableEnvironment.toRetractStream(t2,Row.class);
         ds2.print();
-
         try {
             fsEnv.execute("kafka_json");
         } catch (Exception e) {
