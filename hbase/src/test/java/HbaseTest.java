@@ -35,7 +35,7 @@ public class HbaseTest {
         Configuration conf= HBaseConfiguration.create();
 
 //        conf.set("hbase.zookeeper.quorum","dw1.hb.com,dw2.hb.com,dw3.hb.com");
-        conf.set("hbase.zookeeper.quorum","dev-dw1,dev-dw2,dev-dw3,dev-dw4,dev-dw5");
+        conf.set("hbase.zookeeper.quorum","dev-dw1,dev-dw2,dev-dw3");
         //连接hbase
         con = ConnectionFactory.createConnection(conf);
 

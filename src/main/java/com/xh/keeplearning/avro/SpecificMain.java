@@ -23,7 +23,7 @@ public class SpecificMain {
 
         // Serialize user1 and user2 to disk
 //        File file = new File("users.avro");
-        File file = new File("/Users/xuhuan/IdeaProjects/learn-one-learn/flink/src/main/resources/files/users.avro");
+        File file = new File("/Users/xuhuan/IdeaProjects/keep-learning/flink/src/main/resources/files/users.avro");
 
         DatumWriter<User> userDatumWriter = new SpecificDatumWriter<User>(User.class);
         DataFileWriter<User> dataFileWriter = new DataFileWriter<User>(userDatumWriter);

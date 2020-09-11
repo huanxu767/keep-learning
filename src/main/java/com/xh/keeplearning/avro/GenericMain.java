@@ -56,7 +56,7 @@ public class GenericMain {
     user2.put("favorite_color", "red");
 
     // Serialize user1 and user2 to disk
-    File file = new File("/Users/xuhuan/IdeaProjects/learn-one-learn/flink/src/main/resources/files/users.avro");
+    File file = new File("/Users/xuhuan/IdeaProjects/keep-learning/flink/src/main/resources/files/users.avro");
     DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);
     DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(datumWriter);
     dataFileWriter.create(schema, file);

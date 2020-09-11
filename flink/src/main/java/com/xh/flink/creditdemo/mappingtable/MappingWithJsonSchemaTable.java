@@ -14,24 +14,9 @@ import org.apache.flink.types.Row;
  *  ./kafka-console-producer.sh --broker-list dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092 --topic orders
  *  {"amount":1759.0,"product":"名4","ts":"2020-07-29 17:40:10","user_id":"1758"}
  */
-public class Mapping3Table {
+public class MappingWithJsonSchemaTable {
 
-    private static final String create_kafka_table = "CREATE TABLE orders (\n" +
-            "  user_id INT,\n" +
-            "  product STRING,\n" +
-            "  amount INT,\n" +
-            "  ts TIMESTAMP(3) ,\n" +
-            "  WATERMARK FOR ts AS ts - INTERVAL '3' SECOND\n" +
-            ") WITH (\n" +
-            " 'connector' = 'kafka',\n" +
-            " 'topic' = 'orders',\n" +
-            " 'properties.bootstrap.servers' = 'dev-dw1:9092,dev-dw2:9092,dev-dw3:9092,dev-dw4:9092,dev-dw5:9092',\n" +
-            " 'properties.group.id' = 'testGroup',\n" +
-            " 'format' = 'json',\n" +
-            " 'scan.startup.mode' = 'earliest-offset',\n"+
-            " 'json.fail-on-missing-field' = 'false',\n" +
-            " 'json.ignore-parse-errors' = 'true'\n" +
-            ")";
+    private static final String create_kafka_table = "";
 
     private static final String create_mysql_sink =   "create table dw_orders_count (\n" +
             "window_start STRING," +
@@ -44,7 +29,8 @@ public class Mapping3Table {
             " 'url' = 'jdbc:mysql://localhost:3306/xdb'," +
             " 'username' = 'root'," +
             " 'password' = 'xuhuan'," +
-            " 'table-name' = 'dw_orders_count'" +
+            " 'table-name' = 'dw_orders_count'," +
+            " 'format.schema'" +
             ")";
 
 

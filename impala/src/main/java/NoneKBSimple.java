@@ -4,9 +4,10 @@ import java.sql.*;
 public class NoneKBSimple {
 
     private static String JDBC_DRIVER = "com.cloudera.impala.jdbc41.Driver";
-    private static String CONNECTION_URL = "jdbc:impala://impal-api-internal.hbfintech.com:21050/brms;auth=noSasl";
+//    private static String CONNECTION_URL = "jdbc:impala://impal-api-internal.hbfintech.com:21050/brms;auth=noSasl";
 //    private static String CONNECTION_URL = "jdbc:impala://172.20.0.203:21050/brms;auth=noSasl";
 
+    private static String CONNECTION_URL = "jdbc:impala://impal-api.hbfintech.com:21050/brms;auth=noSasl";
 
     static {
         try {
@@ -17,18 +18,18 @@ public class NoneKBSimple {
     }
 
     public static void main(String[] args) {
-        insert();
+        query();
     }
 
 
-    private void query(){
+    private static void query(){
         System.out.println("通过JDBC连接非Kerberos环境下的Impala");
         Connection connection = null;
         ResultSet rs = null;
         PreparedStatement ps = null;
         try {
             connection = DriverManager.getConnection(CONNECTION_URL);
-            ps = connection.prepareStatement("select * from impala_kudu.my_external_table");
+            ps = connection.prepareStatement("select * from brms.cmpay_credit_apply limit 10");
             rs = ps.executeQuery();
             while (rs.next()) {
                 System.out.println(rs.getInt(1) + "-------" + rs.getString(2));

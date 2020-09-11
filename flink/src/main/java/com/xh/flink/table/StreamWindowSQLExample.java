@@ -42,8 +42,9 @@ public class StreamWindowSQLExample {
                 "  user_id INT,\n" +
                 "  product STRING,\n" +
                 "  amount INT,\n" +
-                "  ts TIMESTAMP(3),\n" +
-                "  WATERMARK FOR ts AS ts - INTERVAL '3' SECOND\n" +
+                "  ts TIMESTAMP(3)," +
+                "  WATERMARK FOR ts AS ts - INTERVAL '3' SECOND, \n" +
+                "  PRIMARY KEY (user_id) NOT ENFORCED \n" +
                 ") WITH (\n" +
                 "  'connector.type' = 'filesystem',\n" +
                 "  'connector.path' = '" + path + "',\n" +

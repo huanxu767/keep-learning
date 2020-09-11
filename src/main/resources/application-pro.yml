@@ -1,7 +1,7 @@
 logging:
   level:
     root: error
-    com.xh: info
+#    com.xh: error
 spring:
   datasource:
     mysql:
