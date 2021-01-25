@@ -1,6 +1,8 @@
 package com.xh.flink.config;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GlobalConfig implements Serializable {
 
@@ -31,6 +33,17 @@ public class GlobalConfig implements Serializable {
 
     // HBase zookeeper
     public static final String ZOOKEEPER = "dw1,dw2,dw3";
-    public static final String TOPIC = "canal_binlog_brms_topic";
+    public static final String BRMS_TOPIC = "canal_binlog_brms_topic";
+    public static final String DATAWARE_TOPIC = "canal_binlog_dataware_topic";
+
+    public static List<String> TOPIC = null;
+    static {
+        TOPIC = new ArrayList<>();
+        TOPIC.add(GlobalConfig.BRMS_TOPIC);
+        TOPIC.add(GlobalConfig.DATAWARE_TOPIC);
+    }
+
+
+
 
 }
