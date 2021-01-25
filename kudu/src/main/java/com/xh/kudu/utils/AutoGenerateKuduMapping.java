@@ -37,7 +37,7 @@ public class AutoGenerateKuduMapping {
 
     public static void main(String[] args) throws KuduException, SQLException {
 
-        String dbKey = "brms";
+        String dbKey = GlobalConfig.SOURCE_DATAWARE_PRO;
         // 初始化指定库
         initDb(dbKey);
 
