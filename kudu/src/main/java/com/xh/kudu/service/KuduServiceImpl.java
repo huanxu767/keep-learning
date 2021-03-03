@@ -50,6 +50,8 @@ public class KuduServiceImpl implements KuduService {
                 System.out.println(tableName);
                 client.deleteTable(tableName);
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }finally {
             client.shutdown();
         }

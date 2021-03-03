@@ -288,12 +288,13 @@ public class DbOperationImpl implements DbOperation{
     @Override
     public List<TransmissionTableConfig> queryUnTransmissionTable(String dbKey) throws SQLException{
         List<TransmissionTableConfig> list = new ArrayList<>();
-        String sql = "select * from rt_transmission_table_config where transmission_flag = 1 and has_transmission = 0  order by `table` ";
+        String sql = "select * from rt_transmission_table_config where transmission_flag = 1 and has_transmission = 0 and `database` = ? order by `table` ";
         Connection con = JdbcUtil.getConnection(DbSource.getDbConfig(GlobalConfig.CANAL_DB));
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             ps = con.prepareStatement(sql);
+            ps.setString(1,dbKey);
             rs = ps.executeQuery();
             while (rs.next()){
                 TransmissionTableConfig tableConfig = TransmissionTableConfig.

@@ -35,14 +35,6 @@ public class AutoGenerateKuduMapping {
      */
     private static boolean IGNORE_TEXT_BLOB = true;
 
-    public static void main(String[] args) throws KuduException, SQLException {
-
-        String dbKey = GlobalConfig.SOURCE_DATAWARE_PRO;
-        // 初始化指定库
-        initDb(dbKey);
-
-    }
-
     /**
      *
      * 初始化整个库中的表
@@ -51,7 +43,7 @@ public class AutoGenerateKuduMapping {
      *
      * @param dbKey
      */
-    private static void initDb(String dbKey) throws SQLException, KuduException {
+    public static void initDb(String dbKey) throws SQLException, KuduException {
 
         DbOperation dbOperation = new DbOperationImpl();
 

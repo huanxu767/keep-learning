@@ -17,17 +17,19 @@ public class AddSingleRecord {
   private static final Logger LOG = LoggerFactory.getLogger(AddSingleRecord.class);
 
 //	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dev-dw1:7051,dev-dw2:7051,dev-dw3:7051");
-	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dw1:7051");
+	public static final String KUDU_MASTER = "dw1:7051";
 
 
 	public static void main(String[] args) throws KuduException {
 		String tableName = "movie";
 
 //		String tableName = "impala::default.my_first_table";
-		KuduClient client = new KuduClient.KuduClientBuilder(KUDU_MASTER).build();
-//		dropTable(client,tableName);
-
-		tableList(client);
+		KuduClient client = new KuduClient.KuduClientBuilder(KUDU_MASTER).defaultOperationTimeoutMs(60000)
+				.defaultSocketReadTimeoutMs(60000)
+				.defaultAdminOperationTimeoutMs(60000)
+				.build();
+		dropTable(client,tableName);
+//
 //		try {
 //			if (!client.tableExists(tableName)) {
 //				create(client,tableName);

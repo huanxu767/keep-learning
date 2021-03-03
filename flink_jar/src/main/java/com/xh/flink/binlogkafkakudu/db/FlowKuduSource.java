@@ -20,7 +20,7 @@ public class FlowKuduSource extends RichSourceFunction<KuduMapping> {
 
     private volatile boolean isRunning = true;
 
-    private String query = "select * from rt_kudu_mapping where status = 1";
+    private static final String QUERY_KUDU_MAPPING_SQL = "select * from rt_kudu_mapping where status = 1";
 
 
     @Override
@@ -34,11 +34,10 @@ public class FlowKuduSource extends RichSourceFunction<KuduMapping> {
             try {
                 connection = JdbcUtil.getConnection(DbSource.getDbConfig(GlobalConfig.CANAL_DB));
                 statement = connection.createStatement();
-                resultSet = statement.executeQuery(query);
+                resultSet = statement.executeQuery(QUERY_KUDU_MAPPING_SQL);
                 KuduMappingDO kuduMappingDO = new KuduMappingDO();
 
                 while (resultSet.next()) {
-//                    System.out.println(resultSet.getString("table"));
                     kuduMappingDO.setId(resultSet.getLong("id"));
                     kuduMappingDO.setDatabase(resultSet.getString("database"));
                     kuduMappingDO.setTable(resultSet.getString("table"));
