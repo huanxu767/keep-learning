@@ -38,7 +38,6 @@ public class MysqlSinkFunction extends RichSinkFunction<MysqlUser> {
             ps.close();
         }
         System.out.println("-----------1close-----------");
-
     }
 
     /**

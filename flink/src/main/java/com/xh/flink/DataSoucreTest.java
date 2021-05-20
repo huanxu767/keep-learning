@@ -26,16 +26,6 @@ public class DataSoucreTest {
 
     public static void main(String[] args) throws Exception {
 
-
-//        Log4jLoggerFactory log4jLoggerFactory = (Log4jLoggerFactory) LoggerFactory.getILoggerFactory();
-//        Logger logger = log4jLoggerFactory.getLogger("root");
-//        logger.isInfoEnabled();
-
-
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger("root");
-        logger.setLevel(Level.ERROR);
-
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
         //普通文件

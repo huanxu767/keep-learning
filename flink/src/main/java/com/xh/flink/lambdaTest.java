@@ -20,10 +20,6 @@ public class lambdaTest {
 
     public static void main(String[] args) throws Exception {
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger("root");
-        logger.setLevel(Level.ERROR);
-
 
 //        t1();
 //        t3();

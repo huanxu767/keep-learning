@@ -17,6 +17,7 @@ import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
@@ -29,6 +30,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -54,6 +56,8 @@ public class BinlogToKudu {
     @SneakyThrows
     public static void main(String[] args) {
 
+
+//        ParameterTool parameterTool = ParameterTool.fromArgs()
         int beginDay = 0;
         if(args != null && args.length >= 1){
             beginDay = Integer.parseInt(args[0]);

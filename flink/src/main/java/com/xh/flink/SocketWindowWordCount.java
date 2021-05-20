@@ -28,7 +28,7 @@ public class SocketWindowWordCount {
         // get the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // get input data by connecting to the socket
-        DataStream<String> text = env.socketTextStream("dev-dw1", port, "\n");
+        DataStream<String> text = env.socketTextStream("localhost", port, "\n");
         System.out.println(i++ + "="+text);
         // parse the data, group it, window it, and aggregate the counts
         DataStream<WordWithCount> windowCounts = text
@@ -40,8 +40,9 @@ public class SocketWindowWordCount {
                         }
                     }
                 })
-                .keyBy("word")
-                .timeWindow(Time.seconds(5), Time.seconds(1))
+//                .keyBy("word")
+                .keyBy(w -> w.word)
+                .timeWindow(Time.seconds(5), Time.seconds(5))
                 .reduce(new ReduceFunction<WordWithCount>() {
                     @Override
                     public WordWithCount reduce(WordWithCount a, WordWithCount b) {
