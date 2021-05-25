@@ -54,7 +54,11 @@ public class FlinkKafkaConsumerTest {
 //        topicList.add("canal_binlog_sxb_pro_topic");
 //        topicList.add("canal_binlog_debitceb_pro_topic");
 //        topicList.add("canal_binlog_fintech_topic");
-        topicList.add("canal_binlog_debitceb_pro_topic");
+//        topicList.add("canal_binlog_debitceb_pro_topic");
+
+        topicList.add("canal_binlog_brms-model_topic");
+
+
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<String>(topicList,new SimpleStringSchema(),props);
 //        consumer.setStartFromEarliest();     // start from the earliest record possible
 //        consumer.setStartFromLatest();       // start from the latest record

@@ -12,12 +12,10 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.Types;
-import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Date;
 
-import static org.apache.flink.table.api.Expressions.$;
 
 
 /**
@@ -39,6 +37,7 @@ public class TouristSQL {
         Logger logger = loggerContext.getLogger("root");
         logger.setLevel(Level.ERROR);
 
+        /**
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         BatchTableEnvironment tEnv = BatchTableEnvironment.create(env);
         env.setParallelism(1);
@@ -81,7 +80,7 @@ public class TouristSQL {
         DataSet<TouristOrder> r3 = tEnv.toDataSet(tb3, TouristOrder.class);
         r3.print();
         System.out.println("--------");
-
+        **/
     }
 
     /**
@@ -99,6 +98,7 @@ public class TouristSQL {
 
         public static void main(String[] args) throws Exception {
             ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+            /**
             BatchTableEnvironment tEnv = BatchTableEnvironment.create(env);
 
             DataSet<WC> input = env.fromElements(
@@ -116,6 +116,7 @@ public class TouristSQL {
             DataSet<WC> result = tEnv.toDataSet(filtered, WC.class);
 
             result.print();
+             **/
         }
 
         // *************************************************************************

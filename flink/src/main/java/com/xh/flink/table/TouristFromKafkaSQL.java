@@ -14,7 +14,6 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.Types;
 
 
-import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Date;
@@ -39,6 +38,9 @@ public class TouristFromKafkaSQL {
         Logger logger = loggerContext.getLogger("root");
         logger.setLevel(Level.ERROR);
 
+        /**
+         * 1.10.* 版本
+         *
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         BatchTableEnvironment tEnv = BatchTableEnvironment.create(env);
         env.setParallelism(1);
@@ -81,6 +83,6 @@ public class TouristFromKafkaSQL {
         DataSet<TouristOrder> r3 = tEnv.toDataSet(tb3, TouristOrder.class);
         r3.print();
         System.out.println("--------");
-
+        **/
     }
 }

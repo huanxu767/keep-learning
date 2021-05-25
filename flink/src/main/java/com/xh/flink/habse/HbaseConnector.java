@@ -3,7 +3,6 @@ package com.xh.flink.habse;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import org.apache.flink.addons.hbase.TableInputFormat;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -12,7 +11,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.LoggerFactory;
 
 
@@ -93,6 +91,7 @@ public class HbaseConnector {
     static DataSet<Tuple2<String, String>> read() throws Exception {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
+        /**
         DataSet<Tuple2<String, String>> hbaseInput =  env.createInput(new TableInputFormat<Tuple2<String, String>>(){
 
             private HTable hTable;
@@ -137,6 +136,8 @@ public class HbaseConnector {
             }
         });
         return hbaseInput;
+            **/
+        return null;
     }
 
 

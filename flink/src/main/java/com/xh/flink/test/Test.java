@@ -3,12 +3,9 @@ package com.xh.flink.test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.xh.flink.creditdemo.model.CreditApply;
-import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import java.sql.Timestamp;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Test {
     public static void main(String[] args) throws ParseException {
