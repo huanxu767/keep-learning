@@ -54,7 +54,7 @@ public interface DbOperation {
      * @return
      * @throws SQLException
      */
-    List<String> queryMysqlColumns(DbConfig dbConfig,String tableName) throws SQLException;
+    List<String> queryMysqlColumns(DbConfig dbConfig,String tableName,boolean ignoreTextBlob) throws SQLException;
 
     /**
      * 查询mysql库中表的列 多表

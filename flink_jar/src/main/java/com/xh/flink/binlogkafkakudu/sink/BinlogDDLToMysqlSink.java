@@ -33,9 +33,6 @@ public class BinlogDDLToMysqlSink extends RichSinkFunction<Dml> {
         super.open(parameters);
         connection = JdbcUtil.getConnection(DbSource.getDbConfig(GlobalConfig.INFINITY_DB));
         String sql = "insert into f_ddl_change_log(binlog_id,table_name,db_name,`type`,`sql`,es,ts) values(?,?, ?, ?, ?, ?, ?);";
-
-//        String sql = "insert into f_ddl_change_log(table_name,db_name,type,es,ts) values( ?, ?, ?, ?, ?);";
-
         ps = this.connection.prepareStatement(sql);
     }
 

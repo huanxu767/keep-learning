@@ -6,12 +6,11 @@ import com.xh.flink.binlog.DmlDeserializationSchema;
 import com.xh.flink.binlogkafkakudu.config.ImportantTableDO;
 import com.xh.flink.binlogkafkakudu.db.ImportantTableSource;
 import com.xh.flink.binlogkafkakudu.function.ImportantTableProcessFunction;
+import com.xh.flink.binlogkafkakudu.function.KuduMappingProcessFunction;
 import com.xh.flink.binlogkafkakudu.sink.BinlogDDLToMysqlSink;
+import com.xh.flink.binlogkafkakudu.sink.BinlogToKuduSink;
 import com.xh.flink.config.GlobalConfig;
 import com.xh.flink.binlogkafkakudu.config.KuduMapping;
-import com.xh.flink.binlogkafkakudu.db.FlowKuduSource;
-import com.xh.flink.binlogkafkakudu.function.KuduMappingProcessFunction;
-import com.xh.flink.binlogkafkakudu.sink.BinlogToKuduSink;
 import com.xh.flink.utils.TimeUtils;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -23,8 +22,6 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -37,9 +34,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -47,15 +41,8 @@ public class BinlogToKudu {
 
     private static final Logger log = LoggerFactory.getLogger(BinlogToKudu.class);
 
-    private final static String USER_NAME = "guest";
-    private final static String PASSWORD = "guest";
 
-//
-    public static final MapStateDescriptor<String, KuduMapping> flowStateDescriptor = new MapStateDescriptor<String, KuduMapping>(
-            "flowKuduBroadCastState",
-            BasicTypeInfo.STRING_TYPE_INFO,
-            TypeInformation.of(new TypeHint<KuduMapping>() {})
-    );
+
 
     public static final MapStateDescriptor<String, ImportantTableDO> importantTableFlowStateDescriptor = new MapStateDescriptor<String, ImportantTableDO>(
             "flowImportantTableBroadCastState",
@@ -89,15 +76,12 @@ public class BinlogToKudu {
         sinkDDL(importantTableChangeStream,ddlBinlogStream);
 
 
-////      dml处理
-//        DataStream<Dml> dmlBinlogStream = binlogStream.filter( a -> a.getIsDdl() == false);
-//        KeyedStream<Dml, String> dmlKeyedMessageStream = dmlBinlogStream.keyBy((a) -> a.getDatabase() + a.getTable());
-//        dmlBinlogStream.print("dml:");
-////         读取配置流
-//        BroadcastStream<KuduMapping> broadcast = env.addSource(new FlowKuduSource()).broadcast(flowStateDescriptor);
-//        DataStream<Tuple2<Dml, KuduMapping>> connectedDmlStream = dmlKeyedMessageStream.connect(broadcast).process(new KuduMappingProcessFunction()).setParallelism(5);
-//        connectedDmlStream.addSink(new BinlogToKuduSink());
-
+//      dml处理
+        DataStream<Dml> dmlBinlogStream = binlogStream.filter( a -> a.getIsDdl() == false);
+        KeyedStream<Dml, String> dmlKeyedMessageStream = dmlBinlogStream.keyBy((a) -> a.getDatabase() + a.getTable());
+//         读取配置流
+        DataStream<Tuple2<Dml, KuduMapping>> connectedDmlStream = dmlKeyedMessageStream.connect(importantTableDOBroadcastStream).process(new KuduMappingProcessFunction());
+        connectedDmlStream.addSink(new BinlogToKuduSink());
         env.execute("kudu increments realtime ");
     }
 
@@ -110,12 +94,14 @@ public class BinlogToKudu {
 
     private static void sinkRabbitMq(DataStream<String> importantTableChangeStream) {
         final RMQConnectionConfig connectionConfig = new RMQConnectionConfig.Builder()
-                .setHost("localhost").setPort(5672).setUserName(USER_NAME).setPassword(PASSWORD).setVirtualHost("/")
+                .setHost(GlobalConfig.MQ_URL).setPort(5672).setUserName(GlobalConfig.MQ_USER_NAME)
+                .setPassword(GlobalConfig.MQ_PASSWORD)
+                .setVirtualHost("/")
                 .build();
 
         importantTableChangeStream.addSink(new RMQSink<String>(
-                connectionConfig,            // config for the RabbitMQ connection
-                "xh_flink_rabbit_mq_test",                 // name of the RabbitMQ queue to send messages to
+                connectionConfig,
+                GlobalConfig.MQ_NOTIFY_TOPIC,
                 new SimpleStringSchema()));
     }
 

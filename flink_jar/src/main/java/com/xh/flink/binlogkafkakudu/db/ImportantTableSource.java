@@ -19,7 +19,7 @@ public class ImportantTableSource extends RichSourceFunction<ImportantTableDO> {
 
     private volatile boolean isRunning = true;
 
-    private static final String IMPORTANT_TABLE_SQL = "select * from infinity_pro.f_important_table where valid = 1";
+    private static final String IMPORTANT_TABLE_SQL = "select * from infinity_pro.f_important_table where valid = 1 and sync_data_status = 1";
 
 
     @Override
@@ -28,23 +28,27 @@ public class ImportantTableSource extends RichSourceFunction<ImportantTableDO> {
         while (isRunning) {
             Connection connection = null;
             Statement statement = null;
-            ResultSet resultSet = null;
+            ResultSet rs = null;
 
             try {
                 connection = JdbcUtil.getConnection(DbSource.getDbConfig(GlobalConfig.INFINITY_DB));
                 statement = connection.createStatement();
-                resultSet = statement.executeQuery(IMPORTANT_TABLE_SQL);
+                rs = statement.executeQuery(IMPORTANT_TABLE_SQL);
                 ImportantTableDO importantTableDO = new ImportantTableDO();
 
-                while (resultSet.next()) {
-                    importantTableDO.setId(resultSet.getLong("id"));
-                    importantTableDO.setDbName(resultSet.getString("db_name"));
-                    importantTableDO.setTableName(resultSet.getString("table_name"));
+                while (rs.next()) {
+                    importantTableDO.setId(rs.getLong("id"));
+                    importantTableDO.setDbName(rs.getString("db_name"));
+                    importantTableDO.setTableName(rs.getString("table_name"));
+                    importantTableDO.setSyncTargetTable(rs.getString("sync_target_table"));
+                    importantTableDO.setSyncColumn(rs.getString("sync_column"));
+                    importantTableDO.setSyncPrimaryKey(rs.getString("sync_primary_key"));
+                    importantTableDO.setSyncStatus(rs.getInt("sync_data_status"));
                     //KuduMappingDO 转为KuduMapping
                     ctx.collect(importantTableDO);
                 }
             } finally {
-                JdbcUtil.close(resultSet, statement, connection);
+                JdbcUtil.close(rs, statement, connection);
             }
             // 隔一段时间读取，可以使更新的配置生效
             Thread.sleep(60 * 1000L);

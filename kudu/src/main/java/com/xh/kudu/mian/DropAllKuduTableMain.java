@@ -10,7 +10,7 @@ public class DropAllKuduTableMain {
     public static void main(String[] args) throws KuduException, SQLException {
 
         KuduService kuduService = new KuduServiceImpl();
-        kuduService.dropTables("brms");
+        kuduService.dropTables("fintech");
     }
 
 

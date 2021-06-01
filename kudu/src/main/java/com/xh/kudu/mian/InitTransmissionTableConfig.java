@@ -12,7 +12,7 @@ public class InitTransmissionTableConfig {
     public static void main(String[] args) throws SQLException, KuduException {
         String dbKey = GlobalConfig.SOURCE_DATAWARE_PRO;
 
-//        initTransmissionTableConfig(dbKey);
+        initTransmissionTableConfig(dbKey);
             // 初始化指定库
         AutoGenerateKuduMapping.initDb(dbKey);
     }

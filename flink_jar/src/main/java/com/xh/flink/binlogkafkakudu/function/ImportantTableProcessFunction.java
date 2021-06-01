@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkakudu.BinlogToKudu;
 import com.xh.flink.binlogkafkakudu.config.ImportantTableDO;
+import com.xh.flink.utils.DmlToTableChangeMsgUtil;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
@@ -25,8 +26,7 @@ public class ImportantTableProcessFunction extends KeyedBroadcastProcessFunction
         Gson gson = new GsonBuilder().serializeNulls().create();
 
         if (null != importantTableDO ) {
-            log.info(importantTableDO.toString());
-            out.collect(gson.toJson(dml));
+            out.collect(gson.toJson(DmlToTableChangeMsgUtil.transform(dml)));
         }
     }
 

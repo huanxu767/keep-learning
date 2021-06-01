@@ -56,7 +56,7 @@ public class FlinkKafkaConsumerTest {
 //        topicList.add("canal_binlog_fintech_topic");
 //        topicList.add("canal_binlog_debitceb_pro_topic");
 
-        topicList.add("canal_binlog_brms-model_topic");
+        topicList.add("canal_binlog_brms_model_topic");
 
 
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<String>(topicList,new SimpleStringSchema(),props);

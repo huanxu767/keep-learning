@@ -48,7 +48,10 @@ public class KuduServiceImpl implements KuduService {
             List<String> tblist = listTablesResponse.getTablesList();
             for(String tableName : tblist) {
                 System.out.println(tableName);
-                client.deleteTable(tableName);
+
+                if(tableName.startsWith("impala::kudu_"+dbKey)){
+                    client.deleteTable(tableName);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();

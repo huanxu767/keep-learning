@@ -27,12 +27,12 @@ public class KuduMapping {
 
 
 
-    public KuduMapping(KuduMappingDO kuduMappingDO) {
-        this.database = kuduMappingDO.getDatabase();
-        this.table = kuduMappingDO.getTable();
-        this.targetTable = kuduMappingDO.getTargetTable();
-        this.targetPk = assemblePk(kuduMappingDO.getOriginalKuduTableRelationId());
-        this.targetColumns = assembleColumns(kuduMappingDO.getOriginalTableColumn());
+    public KuduMapping(ImportantTableDO importantTableDO) {
+        this.database = importantTableDO.getDbName();
+        this.table = importantTableDO.getTableName();
+        this.targetTable = importantTableDO.getSyncTargetTable();
+        this.targetPk = assemblePk(importantTableDO.getSyncPrimaryKey());
+        this.targetColumns = assembleColumns(importantTableDO.getSyncColumn());
 
     }
 
@@ -40,8 +40,7 @@ public class KuduMapping {
         Map<String,String> pkMap = new HashMap<>();
         String[] ar = originalTableColumn.trim().split(",");
         for (int i = 0; i < ar.length; i++) {
-            String[] column = ar[i].split(":");
-            pkMap.put(column[0],column[1]);
+            pkMap.put(ar[i],ar[i]);
         }
         return pkMap;
     }
@@ -50,8 +49,7 @@ public class KuduMapping {
         Map<String,String> columnMap = new HashMap<>();
         String[] ar = originalKuduTableRelationId.trim().split(",");
         for (int i = 0; i < ar.length; i++) {
-            String[] column = ar[i].split(":");
-            columnMap.put(column[0],column[1]);
+            columnMap.put(ar[i],ar[i]);
         }
         return columnMap;
     }

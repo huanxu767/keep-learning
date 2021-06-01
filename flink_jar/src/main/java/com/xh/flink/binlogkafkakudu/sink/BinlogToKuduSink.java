@@ -2,6 +2,7 @@ package com.xh.flink.binlogkafkakudu.sink;
 
 import com.xh.flink.binlog.Dml;
 
+import com.xh.flink.binlogkafkakudu.config.ImportantTableDO;
 import com.xh.flink.config.GlobalConfig;
 import com.xh.flink.binlogkafkakudu.config.KuduMapping;
 import com.xh.flink.binlogkafkakudu.service.KuduSyncService;

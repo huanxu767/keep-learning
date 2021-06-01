@@ -205,7 +205,7 @@ public class DbOperationImpl implements DbOperation{
     @Override
     public String queryPk(DbConfig dbConfig,String tableName) throws SQLException {
         String pk = null;
-        String sql = "SELECT LOWER(column_name) pk FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` " +
+        String sql = "SELECT group_concat(LOWER(column_name)) pk FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` " +
                 " WHERE table_schema = ? and table_name= ?  AND constraint_name='PRIMARY' ";
         Connection con = JdbcUtil.getConnection(dbConfig);
         PreparedStatement ps = null;
@@ -365,7 +365,7 @@ public class DbOperationImpl implements DbOperation{
      * @throws SQLException
      */
     @Override
-    public List<String> queryMysqlColumns(DbConfig dbConfig, String tableName) throws SQLException {
+    public List<String> queryMysqlColumns(DbConfig dbConfig, String tableName,boolean ignoreTextBlob) throws SQLException {
         List<String> list = new ArrayList<>();
         // 1.2 获取数据库链接
         Connection con = JdbcUtil.getConnection(dbConfig);
@@ -373,6 +373,11 @@ public class DbOperationImpl implements DbOperation{
         String sql = "select LOWER(column_name) name" +
                 "        from information_schema.columns " +
                 "        where table_schema = ? and table_name = ?";
+
+        if(ignoreTextBlob){
+            sql += " and data_type not like '%text%' and data_type not like '%blob%' ";
+        }
+
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
@@ -389,21 +394,6 @@ public class DbOperationImpl implements DbOperation{
         return list;
     }
 
-    public static void main(String[] args) throws SQLException {
-        String bdName = "fintech";
-        String tableName = "product_repay";
-        DbOperationImpl dbOperation = new DbOperationImpl();
-        List<String> hiveList = dbOperation.describeHiveTable(bdName,tableName);
-        System.out.println(hiveList);
 
-        List<String> mysqlList = dbOperation.queryMysqlColumns(DbSource.getDbConfig(bdName),tableName);
-        System.out.println(mysqlList);
-
-        boolean flag = CollectionUtils.isEqualCollection(hiveList,mysqlList);
-        System.out.println(flag);
-
-
-
-    }
 
 }
