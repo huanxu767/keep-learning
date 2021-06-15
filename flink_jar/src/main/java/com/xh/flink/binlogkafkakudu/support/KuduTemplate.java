@@ -1,15 +1,14 @@
 package com.xh.flink.binlogkafkakudu.support;
 
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.xh.flink.config.GlobalConfig;
 import org.apache.kudu.ColumnSchema;
 import org.apache.kudu.Schema;
 import org.apache.kudu.Type;
@@ -22,7 +21,6 @@ import org.apache.kudu.client.KuduSession;
 import org.apache.kudu.client.KuduTable;
 import org.apache.kudu.client.OperationResponse;
 import org.apache.kudu.client.PartialRow;
-import org.apache.kudu.client.SessionConfiguration;
 import org.apache.kudu.client.Upsert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,29 +31,25 @@ import org.slf4j.LoggerFactory;
  */
 public class KuduTemplate {
 
-    private final static int OPERATION_BATCH = 500;
     private Logger           logger          = LoggerFactory.getLogger(this.getClass());
+    private KuduSession       session;
     private KuduClient       kuduClient;
-    private String           masters;
+    private KuduTable kuduTable;
+    private Schema schema;
+
     private SimpleDateFormat sdf             = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public KuduTemplate(String master_str){
-        this.masters = master_str;
-        checkClient();
-    }
-
-    /**
-     * 检车连接
-     */
-    private void checkClient() {
-        if (kuduClient == null) {
-            // kudu master 以逗号分隔
-            kuduClient = new KuduClient.KuduClientBuilder(masters).defaultOperationTimeoutMs(60000)
-                    .defaultSocketReadTimeoutMs(60000)
-                    .defaultAdminOperationTimeoutMs(60000)
-                    .build();
+    public KuduTemplate(KuduClient kuduClient,KuduSession session,String tableName){
+        this.session = session;
+        this.kuduClient = kuduClient;
+        try {
+            this.kuduTable = kuduClient.openTable(tableName);
+            this.schema = kuduTable.getSchema();
+        } catch (KuduException e) {
+            e.printStackTrace();
         }
     }
+
 
     /**
      * 查询表是否存在
@@ -64,7 +58,6 @@ public class KuduTemplate {
      * @return
      */
     public boolean tableExists(String tableName) {
-        this.checkClient();
         try {
             return kuduClient.tableExists(tableName);
         } catch (KuduException e) {
@@ -81,15 +74,10 @@ public class KuduTemplate {
      * @throws KuduException
      */
     public void delete(String tableName, List<Map<String, Object>> dataList) throws KuduException {
-        this.checkClient();
-        KuduTable kuduTable = kuduClient.openTable(tableName);
-        KuduSession session = kuduClient.newSession();
+
         try {
-            session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
-            session.setMutationBufferSpace(OPERATION_BATCH);
             // 获取元数据结构
             Map<String, Type> metaMap = new HashMap<>();
-            Schema schema = kuduTable.getSchema();
             for (ColumnSchema columnSchema : schema.getColumns()) {
                 String colName = columnSchema.getName().toLowerCase();
                 Type type = columnSchema.getType();
@@ -108,7 +96,7 @@ public class KuduTemplate {
                 session.apply(delete);
                 // 对于手工提交, 需要buffer在未满的时候flush,这里采用了buffer一半时即提交
                 uncommit = uncommit + 1;
-                if (uncommit > OPERATION_BATCH / 3 * 2) {
+                if (uncommit > GlobalConfig.OPERATION_BATCH / 3 * 2) {
                     List<OperationResponse> delete_option = session.flush();
                     if (delete_option.size() > 0) {
                         OperationResponse response = delete_option.get(0);
@@ -120,22 +108,9 @@ public class KuduTemplate {
                     uncommit = 0;
                 }
             }
-            List<OperationResponse> delete_option = session.flush();
-            if (delete_option.size() > 0) {
-                OperationResponse response = delete_option.get(0);
-                if (response.hasRowError()) {
-                    logger.error("delete row fail table name is :{} ", tableName);
-                    logger.error("error list is :{}", response.getRowError().getMessage());
-                }
-            }
-
         } catch (KuduException e) {
             logger.error("error message is :{}", dataList.toString());
             throw e;
-        } finally {
-            if (!session.isClosed()) {
-                session.close();
-            }
         }
     }
 
@@ -147,15 +122,11 @@ public class KuduTemplate {
      * @throws KuduException
      */
     public void upsert(String tableName, List<Map<String, Object>> dataList) throws KuduException {
-        this.checkClient();
-        KuduTable kuduTable = kuduClient.openTable(tableName);
-        KuduSession session = kuduClient.newSession();
         try {
-            session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
-            session.setMutationBufferSpace(OPERATION_BATCH);
+
             // 获取元数据结构
             Map<String, Type> metaMap = new HashMap<>();
-            Schema schema = kuduTable.getSchema();
+
             for (ColumnSchema columnSchema : schema.getColumns()) {
                 String colName = columnSchema.getName().toLowerCase();
                 Type type = columnSchema.getType();
@@ -174,7 +145,7 @@ public class KuduTemplate {
                 session.apply(upsert);
                 // 对于手工提交, 需要buffer在未满的时候flush,这里采用了buffer一半时即提交
                 uncommit = uncommit + 1;
-                if (uncommit > OPERATION_BATCH / 3 * 2) {
+                if (uncommit > GlobalConfig.OPERATION_BATCH / 3 * 2) {
                     List<OperationResponse> update_option = session.flush();
                     if (update_option.size() > 0) {
                         OperationResponse response = update_option.get(0);
@@ -186,21 +157,9 @@ public class KuduTemplate {
                     uncommit = 0;
                 }
             }
-            List<OperationResponse> update_option = session.flush();
-            if (update_option.size() > 0) {
-                OperationResponse response = update_option.get(0);
-                if (response.hasRowError()) {
-                    logger.error("update row fail table name is :{} ", tableName);
-                    logger.error("update list is :{}", response.getRowError().getMessage());
-                }
-            }
         } catch (KuduException e) {
             logger.error("error message is :{}", dataList.toString());
             throw e;
-        } finally {
-            if (!session.isClosed()) {
-                session.close();
-            }
         }
 
     }
@@ -213,16 +172,10 @@ public class KuduTemplate {
      * @throws KuduException
      */
     public void insert(String tableName, List<Map<String, Object>> dataList) throws KuduException {
-        this.checkClient();
-        KuduTable kuduTable = kuduClient.openTable(tableName);// 打开表
-        KuduSession session = kuduClient.newSession(); // 创建写session,kudu必须通过session写入
         try {
-            session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH); // 采取Flush方式
-            // 手动刷新
-            session.setMutationBufferSpace(OPERATION_BATCH);
             // 获取元数据结构
             Map<String, Type> metaMap = new HashMap<>();
-            Schema schema = kuduTable.getSchema();
+
             for (ColumnSchema columnSchema : schema.getColumns()) {
                 String colName = columnSchema.getName().toLowerCase();
                 Type type = columnSchema.getType();
@@ -241,7 +194,7 @@ public class KuduTemplate {
                 session.apply(insert);
                 // 对于手工提交, 需要buffer在未满的时候flush,这里采用了buffer一半时即提交
                 uncommit = uncommit + 1;
-                if (uncommit > OPERATION_BATCH / 3 * 2) {
+                if (uncommit > GlobalConfig.OPERATION_BATCH / 3 * 2) {
                     List<OperationResponse> insert_option = session.flush();
                     if (insert_option.size() > 0) {
                         OperationResponse response = insert_option.get(0);
@@ -253,21 +206,10 @@ public class KuduTemplate {
                     uncommit = 0;
                 }
             }
-            List<OperationResponse> insert_option = session.flush();
-            if (insert_option.size() > 0) {
-                OperationResponse response = insert_option.get(0);
-                if (response.hasRowError()) {
-                    logger.error("insert row fail table name is :{} ", tableName);
-                    logger.error("insert list is :{}", response.getRowError().getMessage());
-                }
-            }
+
         } catch (KuduException e) {
             logger.error("error message is :{}", dataList.toString());
             throw e;
-        } finally {
-            if (!session.isClosed()) {
-                session.close();
-            }
         }
 
     }
@@ -279,10 +221,8 @@ public class KuduTemplate {
      * @return
      */
     public long countRow(String tableName) {
-        this.checkClient();
         long rowCount = 0L;
         try {
-            KuduTable kuduTable = kuduClient.openTable(tableName);
             // 创建scanner扫描
             KuduScanner scanner = kuduClient.newScannerBuilder(kuduTable).build();
             // 遍历数据
@@ -295,21 +235,6 @@ public class KuduTemplate {
             e.printStackTrace();
         }
         return rowCount;
-    }
-
-    /**
-     * 关闭钩子
-     *
-     * @throws IOException
-     */
-    public void closeKuduClient() {
-        if (kuduClient != null) {
-            try {
-                kuduClient.close();
-            } catch (Exception e) {
-                logger.error("ShutdownHook Close KuduClient Error! error message {}", e.getMessage());
-            }
-        }
     }
 
     /**

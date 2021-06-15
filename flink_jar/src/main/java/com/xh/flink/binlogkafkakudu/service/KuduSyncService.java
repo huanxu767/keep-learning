@@ -10,6 +10,7 @@ import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkakudu.config.KuduMapping;
 import com.xh.flink.binlogkafkakudu.support.KuduTemplate;
 import org.apache.kudu.client.KuduException;
+import org.apache.kudu.client.KuduSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,6 @@ public class KuduSyncService {
     private static Logger logger = LoggerFactory.getLogger(KuduSyncService.class);
 
     private KuduTemplate kuduTemplate;
-
 
     public KuduSyncService(KuduTemplate kuduTemplate){
         this.kuduTemplate = kuduTemplate;

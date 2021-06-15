@@ -10,23 +10,23 @@ import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
 
 public class RabbitMqSourceDemo {
 
-    private static final String READ_TOPIC = "student";
-    private final static String USER_NAME = "guest";
-    private final static String PASSWORD = "guest";
+    private static final String READ_TOPIC = "important_table_change";
+    private final static String USER_NAME = "admin";
+    private final static String PASSWORD = "admin123";
 
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
 
         final RMQConnectionConfig connectionConfig = new RMQConnectionConfig.Builder()
-                .setHost("localhost").setPort(5672).setUserName(USER_NAME).setPassword(PASSWORD).setVirtualHost("/")
+                .setHost("mq-cluster.hbfintech.com").setPort(5672).setUserName(USER_NAME).setPassword(PASSWORD).setVirtualHost("/")
                 .build();
 
 
         final DataStream<String> stream = env
                 .addSource(new RMQSource<String>(
                         connectionConfig,            // config for the RabbitMQ connection
-                        "xh_flink_rabbit_mq_test",                 // name of the RabbitMQ queue to consume
+                        READ_TOPIC,                 // name of the RabbitMQ queue to consume
                         true,                        // use correlation ids; can be false if only at-least-once is required
                         new SimpleStringSchema()))   // deserialization schema to turn messages into Java objects
                 .setParallelism(1);              // non-parallel source is only required for exactly-once

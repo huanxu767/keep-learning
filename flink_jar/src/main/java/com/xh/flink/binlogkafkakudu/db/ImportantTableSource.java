@@ -19,8 +19,14 @@ public class ImportantTableSource extends RichSourceFunction<ImportantTableDO> {
 
     private volatile boolean isRunning = true;
 
-    private static final String IMPORTANT_TABLE_SQL = "select * from infinity_pro.f_important_table where valid = 1 and sync_data_status = 1";
+    private static final String IMPORTANT_TABLE_SQL =
+            "select * from infinity_pro.f_important_table where valid = 1 and sync_data_status = 1";
 
+
+//
+//    private static final String IMPORTANT_TABLE_SQL =
+//            "select * from infinity_pro.f_important_table " +
+//                    "where valid = 1 and sync_data_status = 1 and db_name = 'fintech' and table_name in ('debit_cfc_loan_detail','member_person_info')";
 
     @Override
     public void run(SourceContext<ImportantTableDO> ctx) throws Exception {

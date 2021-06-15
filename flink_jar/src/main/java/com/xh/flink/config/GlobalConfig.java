@@ -27,35 +27,17 @@ public class GlobalConfig implements Serializable {
 
     public static final String ZOOKEEPER = "dw1,dw2,dw3";
 
-    //    private final static String MQ_USER_NAME = "guest";
-//    private final static String MQ_PASSWORD = "guest";
+//    public final static String MQ_USER_NAME = "guest";
+//    public final static String MQ_PASSWORD = "guest";
     public final static String MQ_USER_NAME = "admin";
     public final static String MQ_PASSWORD = "admin123";
-    public final static String MQ_URL = "mq-cluster.hbfintech.com";
+        public final static String MQ_URL = "mq-cluster.hbfintech.com";
+//    public final static String MQ_URL = "127.0.0.1";
     public final static String MQ_NOTIFY_TOPIC = "important_table_change";
+    public final static int OPERATION_BATCH = 10000;
 
 
-    public static List<String> TOPIC;
-    static {
-        TOPIC = new ArrayList<>();
-        TOPIC.add("canal_binlog_dataware_pro_topic");
-        TOPIC.add("canal_binlog_brms_topic");
-        TOPIC.add("canal_binlog_hb_nuggets_topic");
-        TOPIC.add("canal_binlog_alchemy_pro_topic");
-        TOPIC.add("canal_binlog_debit_factoring_pro_topic");
-        TOPIC.add("canal_binlog_nbcb_pro_topic");
-        TOPIC.add("canal_binlog_shanghang_pro_topic");
-        TOPIC.add("canal_binlog_everestcenter_pro_topic");
-        TOPIC.add("canal_binlog_lebei_pro_topic");
-        TOPIC.add("canal_binlog_pledgeapi_pro_topic");
-        TOPIC.add("canal_binlog_pledge_pro_topic");
-        TOPIC.add("canal_binlog_premium_pro_topic");
-        TOPIC.add("canal_binlog_sxb_pro_topic");
-        TOPIC.add("canal_binlog_debitceb_pro_topic");
-        TOPIC.add("canal_binlog_fintech_topic");
-        TOPIC.add("canal_binlog_debitceb_pro_topic");
-        TOPIC.add("canal_binlog_brms_model_topic");
-    }
+
 
 
 

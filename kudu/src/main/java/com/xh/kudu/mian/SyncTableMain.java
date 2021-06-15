@@ -28,8 +28,8 @@ public class SyncTableMain {
 
     public static void main(String[] args) throws SQLException, KuduException {
 
-        String bdName = "brms";
-        String table = "cmpay_borrow_apply";
+        String bdName = "debit_factoring_pro";
+        String table = "debit_factoring_repay_record";
         int partition = 8;
 
         // 检查hive 与mysql 字段是否一致

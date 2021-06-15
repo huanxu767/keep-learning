@@ -17,7 +17,7 @@ public class AddSingleRecord {
   private static final Logger LOG = LoggerFactory.getLogger(AddSingleRecord.class);
 
 //	private static final String KUDU_MASTER = System.getProperty("kuduMasters", "dev-dw1:7051,dev-dw2:7051,dev-dw3:7051");
-	public static final String KUDU_MASTER = "dw1:7051";
+	public static final String KUDU_MASTER = "192.168.80.10:7051";
 
 
 	public static void main(String[] args) throws KuduException {
@@ -30,15 +30,15 @@ public class AddSingleRecord {
 				.build();
 		dropTable(client,tableName);
 //
-//		try {
-//			if (!client.tableExists(tableName)) {
-//				create(client,tableName);
-//			}
-//			populateSingleRow(client);
-////			queryData(client);
-//		} finally {
-//			client.shutdown();
-//		}
+		try {
+			if (!client.tableExists(tableName)) {
+				create(client,tableName);
+			}
+			populateSingleRow(client);
+//			queryData(client);
+		} finally {
+			client.shutdown();
+		}
   }
   
   private static void create(KuduClient client,String tableName) throws KuduException {
@@ -78,16 +78,18 @@ public class AddSingleRecord {
   private static void populateSingleRow(KuduClient client) throws KuduException {
 	  
 	  KuduSession session = client.newSession();
-//	  session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
-	  session.setMutationBufferSpace(400000);
+	  session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
+	  session.setMutationBufferSpace(20000);
 
-	  session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_BACKGROUND);
-	  KuduTable table = client.openTable("movie");
+//	  session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_SYNC);
+//	  session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_BACKGROUND);
 
+	  long flushIndex = 0;
 	  long t1 = System.currentTimeMillis();
-	  for (int i = 3000*10000; i < 10000*10000; i++) {
-
-		  System.out.println("--------------------" + i);
+	  for (int i = 1; i < 100000; i++) {
+		  KuduTable table = client.openTable("movie");
+		  flushIndex++;
+//		  System.out.println("--------------------" + i);
 		  Insert insert = table.newInsert();
 		  PartialRow row = insert.getRow();
 		  row.addInt(0, i);
@@ -95,20 +97,60 @@ public class AddSingleRecord {
 		  row.addString(2, "2016");
 		  row.addString(3,  "Sci-Fi");
 		  session.apply(insert);
-//		  if( (i+1) / 20000 == 0){
-//			  session.flush();
-//		  }
+		  if( flushIndex > 15000){
+			  System.out.println("1——flush");
+			  flushIndex = 0;
+			  session.flush();
+		  }
 	  }
+	  System.out.println("end——flush");
+	  session.flush();
 	  long t2 = System.currentTimeMillis();
+
 	  System.out.println("-------" + (t2-t1)/1000);
-
-
-//	  session.flush();
 	  session.close();
 	  LOG.info("added one record" );
 	  
   }
-  
+
+	private static void populateSingleRow2(KuduClient client) throws KuduException {
+
+		long flushIndex = 0;
+		long t1 = System.currentTimeMillis();
+		for (int i = 1; i < 10000; i++) {
+
+			KuduSession session = client.newSession();
+//	  session.setFlushMode(SessionConfiguration.FlushMode.MANUAL_FLUSH);
+			session.setMutationBufferSpace(800);
+
+//	  session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_SYNC);
+			session.setFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_BACKGROUND);
+
+			KuduTable table = client.openTable("movie");
+			flushIndex++;
+			System.out.println("--------------------" + i);
+			Insert insert = table.newInsert();
+			PartialRow row = insert.getRow();
+			row.addInt(0, i);
+			row.addString(1, "Star Wars Force Awakens ");
+			row.addString(2, "2016");
+			row.addString(3,  "Sci-Fi");
+			session.apply(insert);
+//		  if( flushIndex > 1){
+//			  System.out.println("flush");
+//			  flushIndex = 0;
+//			  session.flush();
+//		  }
+
+			long t2 = System.currentTimeMillis();
+
+			System.out.println("-------" + (t2-t1)/1000);
+			session.close();
+			LOG.info("added one record" );
+		}
+	}
+
+
   private static void queryData(KuduClient client) throws KuduException {
 	  
 

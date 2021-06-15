@@ -75,7 +75,7 @@ public class BinlogToHBase {
 //        dmlStream.print();
 
 
-        FlinkKafkaConsumer<Dml> consumer = new FlinkKafkaConsumer(GlobalConfig.TOPIC,new DmlDeserializationSchema(),props);
+        FlinkKafkaConsumer<Dml> consumer = new FlinkKafkaConsumer("",new DmlDeserializationSchema(),props);
         consumer.setStartFromGroupOffsets();
 
         DataStream<Dml> dmlStream = env.addSource(consumer);

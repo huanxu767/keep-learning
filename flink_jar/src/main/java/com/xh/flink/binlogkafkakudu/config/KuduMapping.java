@@ -1,10 +1,11 @@
 package com.xh.flink.binlogkafkakudu.config;
 
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 
 
 public class KuduMapping {

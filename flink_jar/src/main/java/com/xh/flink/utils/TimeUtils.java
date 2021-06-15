@@ -30,6 +30,10 @@ public class TimeUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(getDateStart(-1));
+
+//        1623168351250 00:16:04
+        System.out.println(tsToString(new Long("1623286803887")));
+
+        System.out.println(tsToString(getDateStart(0)));
         }
 }
