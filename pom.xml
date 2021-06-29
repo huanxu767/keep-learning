@@ -13,7 +13,6 @@
         <module>kudu</module>
         <module>impala</module>
         <module>hive</module>
-        <module>cdc</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

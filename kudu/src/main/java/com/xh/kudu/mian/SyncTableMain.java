@@ -4,11 +4,8 @@ import com.xh.kudu.dao.DbOperation;
 import com.xh.kudu.dao.DbOperationImpl;
 import com.xh.kudu.pojo.DbSource;
 import com.xh.kudu.pojo.GlobalConfig;
-import com.xh.kudu.service.KuduService;
-import com.xh.kudu.service.KuduServiceImpl;
 import com.xh.kudu.utils.JdbcUtil;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
@@ -17,9 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.xh.kudu.utils.JdbcUtil.close;
 
@@ -28,9 +23,30 @@ public class SyncTableMain {
 
     public static void main(String[] args) throws SQLException, KuduException {
 
-        String bdName = "debit_factoring_pro";
-        String table = "debit_factoring_repay_record";
-        int partition = 8;
+        String bdName = "sxb_pro";
+        String table = "sxb_area_nation";
+        int partition = 2;
+
+//        hebao_pre_auth_apply --ok
+//        hebao_pre_cash_task_detail --ok
+//        order_alchemy_info --ok
+//        order_cash_card_info --ok
+//        order_pre_auth_info --ok
+//        sxb_active --ok
+//        sxb_active_citys --ok
+//                sxb_active_merch --ok
+//        sxb_active_periods --ok
+//                sxb_active_product
+//        sxb_ali_payment
+//                sxb_ali_payment_detail
+//        sxb_amount_periods
+//                sxb_amount_product
+//        sxb_area -- 主键问题
+
+//                sxb_area_nation -- 主键问题
+//        sxb_hebao_account
+//                sxb_order_apply
+//        sxb_orders
 
         // 检查hive 与mysql 字段是否一致
         DbOperationImpl dbOperation = new DbOperationImpl();
@@ -50,10 +66,12 @@ public class SyncTableMain {
             System.out.println("quit,the table without primary key");
             return;
         }
+        //将主键放入第一个位置
+
         System.out.println(pk);
         //检查 是否已经创建kudu表
         String targetTable = "impala::kudu_" + bdName + "." + table;
-        createKudu(bdName,table,targetTable,pk,partition);
+        createKudu(bdName,table,targetTable,pk,partition,columns);
         updateTableConfig(bdName,table,pk,StringUtils.join(columns,","),targetTable);
     }
 
@@ -64,7 +82,7 @@ public class SyncTableMain {
      * @param targetTable
      * @return
      */
-    private static void createKudu(String dbKey, String table, String targetTable,String primaryKey,int partition) throws KuduException, SQLException {
+    private static void createKudu(String dbKey, String table, String targetTable,String primaryKey,int partition,List<String> colums) throws KuduException, SQLException {
 
         //通过kudu判断表是否存在 impala 无法直接判断表是否存在，通过报错比较粗暴
         boolean tableExistsFlag = validKuduTableIsExist(targetTable);
@@ -73,7 +91,7 @@ public class SyncTableMain {
             return;
         }
         //表不存在，通过impala 创建
-        createKuduByImpala(dbKey,table,primaryKey,partition);
+        createKuduByImpala(dbKey,table,primaryKey,partition,colums);
     }
 
     /**
@@ -115,13 +133,19 @@ public class SyncTableMain {
      * @param primaryKey
      * @param partition
      */
-    private static boolean createKuduByImpala(String dbKey,String table,String primaryKey,int partition) throws SQLException{
+    private static boolean createKuduByImpala(String dbKey,String table,String primaryKey,int partition,List<String> columns) throws SQLException{
+        //主键放入第一个位置
+        if(!columns.get(0).equals(primaryKey)){
+            int index = columns.indexOf(primaryKey);
+            columns.set(index,columns.get(0));
+            columns.set(0,primaryKey);
+        }
         boolean flag = false;
         String relatedKuduDb = "kudu_" + dbKey;
         String sql = "create table " + relatedKuduDb +"." + table + " " +
                 "   PRIMARY KEY ("+primaryKey+") " +
                 "   PARTITION BY HASH("+primaryKey+") PARTITIONS " + partition + " STORED AS KUDU" +
-                "   AS SELECT * FROM " + dbKey+"."+table;
+                "   AS SELECT "+StringUtils.join(columns,",")+" FROM " + dbKey+"."+table;
         System.out.println(sql);
         Connection connection = null;
         ResultSet rs = null;

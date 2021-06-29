@@ -1,7 +1,5 @@
 package com.xh.kudu.mian;
 
-
-
 import com.xh.kudu.pojo.DbSource;
 import com.xh.kudu.pojo.ImportantTableDO;
 import com.xh.kudu.utils.JdbcUtil;
@@ -11,32 +9,40 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * 读取重要表配置
  */
 public class CheckData{
 
-
+//     "and db_name in ('fintech','brms','sxb_pro','shanghang_pro','hb_nuggets','lebei_pro'" +
+//             ",'nbcb_pro','pledgeapi_pro','pledge_pro','debit_factoring_pro','everestcenter_pro','alchemy_pro','debitceb_pro')  " +
     private static final String IMPORTANT_TABLE_SQL =
                     "select * from infinity_pro.f_important_table " +
-                    "where valid = 1 and sync_data_status = 1 and db_name = 'brms' ";
+                    "where valid = 1 and sync_data_status = 1 " +
+                            "and db_name in ('fintech','brms','sxb_pro','shanghang_pro','hb_nuggets','lebei_pro'" +
+                            ",'nbcb_pro','pledgeapi_pro','pledge_pro','debit_factoring_pro','everestcenter_pro','alchemy_pro','debitceb_pro')  " +
+                    "order by db_name desc ";
+
+//    private static final String IMPORTANT_TABLE_SQL =
+//            "select * from infinity_pro.f_important_table " +
+//                    "where valid = 1 and sync_data_status = 1 and db_name = 'brms'";
+//    table:pledge_pro.unicom_merchant
 
     public static void main(String[] args) throws Exception {
         List<ImportantTableDO> list = queryImportantTable();
         for (int i = 0; i < list.size(); i++) {
             ImportantTableDO importantTableDO = list.get(i);
+            System.out.print("table:"+importantTableDO.getDbName() +"." +importantTableDO.getTableName()+";");
             long maxId = queryMaxId(importantTableDO);
+//            long maxId = 6087863l;
             //查看主键类型
             long mysqlTotal = countFromMysql(importantTableDO,maxId);
             Long[] kuduTotal = countFromImpala(importantTableDO,maxId);
-            System.out.print("table:"+importantTableDO.getDbName() +"." +importantTableDO.getTableName()+";");
             System.out.println(
                     "maxId:" + maxId +","+kuduTotal[1]+";total:"+mysqlTotal +","+kuduTotal[0] +";" +
                     "totalflag:"+(mysqlTotal == kuduTotal[0]) +";" +
                     "maxIdIsSame:" + (maxId == kuduTotal[1]));
         }
-
     }
 
 
@@ -117,10 +123,15 @@ public class CheckData{
     }
 
     public static Long[] countFromImpala(ImportantTableDO  tab,long maxId){
+//        String countSql = "" +
+//                " select count(*) total_num,max("+tab.getSyncPrimaryKey()+") max_id " +
+//                " from kudu_"+ tab.getDbName() +"." +tab.getTableName() +
+//                " where "+tab.getSyncPrimaryKey()+" <=  '" + maxId  +"'";
+
         String countSql = "" +
                 " select count(*) total_num,max("+tab.getSyncPrimaryKey()+") max_id " +
                 " from kudu_"+ tab.getDbName() +"." +tab.getTableName() +
-                " where "+tab.getSyncPrimaryKey()+" <= " + maxId;
+                " where "+tab.getSyncPrimaryKey()+" <=  " + maxId  +"";
         // 定时读取数据库的flow表，生成Flow数据
         Connection connection = null;
         Statement statement = null;

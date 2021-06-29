@@ -2,6 +2,7 @@ package com.xh.flink.utils;
 
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,8 +20,13 @@ public class TimeUtils {
         return calendar.getTimeInMillis();
     }
 
-    public static long getTodayStart(){
-      return getDateStart(0);
+    public static long getDateStart(String i) throws ParseException {
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if(i == null){
+            return getDateStart(0);
+        }
+        Date date = sf.parse(i);
+        return date.getTime();
     }
 
     public static String tsToString(long time){
@@ -29,11 +35,13 @@ public class TimeUtils {
         return sf.format(d);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+            long t = getDateStart("2021-06-16 00:00:00");
+            System.out.println(t);
+            System.out.println(tsToString(t));
 
-//        1623168351250 00:16:04
-        System.out.println(tsToString(new Long("1623286803887")));
-
-        System.out.println(tsToString(getDateStart(0)));
+            long t1 = getDateStart(null);
+            System.out.println(t1);
+            System.out.println(tsToString(t1));
         }
 }

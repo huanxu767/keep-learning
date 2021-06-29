@@ -8,9 +8,9 @@ import com.xh.kudu.pojo.DbSource;
 import com.xh.kudu.pojo.GlobalConfig;
 import com.xh.kudu.pojo.TransmissionTableConfig;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
-import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
