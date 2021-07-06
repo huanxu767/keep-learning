@@ -16,7 +16,6 @@ public class DbusProcessFunction extends KeyedBroadcastProcessFunction<String, D
         Flow flow = ctx.getBroadcastState(BinlogToHBase.flowStateDescriptor).get(value.getDatabase() + value.getTable());
 
         if (null != flow && flow.getStatus() == FlowStatusEnum.FLOW_STATUS_RUNNING.getCode()) {
-            System.out.println(flow.getStatus());
             out.collect(Tuple2.of(value, flow));
         }
     }

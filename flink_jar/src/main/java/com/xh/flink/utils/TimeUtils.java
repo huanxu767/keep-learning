@@ -36,12 +36,16 @@ public class TimeUtils {
     }
 
     public static void main(String[] args) throws ParseException {
-            long t = getDateStart("2021-06-16 00:00:00");
-            System.out.println(t);
-            System.out.println(tsToString(t));
-
-            long t1 = getDateStart(null);
-            System.out.println(t1);
-            System.out.println(tsToString(t1));
-        }
+//        es
+        System.out.println(tsToString(1625476893859l));
+//        System.out.println(tsToString(1624981190735l));
+//
+//        long t = getDateStart("2021-06-16 00:00:00");
+//        System.out.println(t);
+//        System.out.println(tsToString(t));
+//
+//        long t1 = getDateStart(null);
+//        System.out.println(t1);
+//        System.out.println(tsToString(t1));
+    }
 }

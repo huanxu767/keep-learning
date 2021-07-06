@@ -34,7 +34,7 @@ public class GlobalConfig implements Serializable {
         public final static String MQ_URL = "mq-cluster.hbfintech.com";
 //    public final static String MQ_URL = "127.0.0.1";
     public final static String MQ_NOTIFY_TOPIC = "important_table_change";
-    public final static int OPERATION_BATCH = 10000;
+    public final static int OPERATION_BATCH = 20000;
 
 
 

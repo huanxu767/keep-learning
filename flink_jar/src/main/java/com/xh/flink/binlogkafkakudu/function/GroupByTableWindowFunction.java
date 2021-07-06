@@ -2,6 +2,7 @@ package com.xh.flink.binlogkafkakudu.function;
 
 import com.xh.flink.binlog.Dml;
 import com.xh.flink.binlogkafkakudu.config.KuduMapping;
+import com.xh.flink.utils.TimeUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -20,11 +21,10 @@ public class GroupByTableWindowFunction extends ProcessWindowFunction<Tuple2<Dml
             list.add(d);
             i++;
         }
-//        String windowStart=new DateTime(context.window().getStart(), DateTimeZone.forID("+08:00")).toString("yyyy-MM-dd HH:mm:ss");
-//        String windowEnd=new DateTime(context.window().getEnd(), DateTimeZone.forID("+08:00")).toString("yyyy-MM-dd HH:mm:ss");
-//
-//        String record= key +": 窗口开始时间: "+windowStart+" 窗口结束时间: "+windowEnd+" 窗口记录数: "+ i ;
-//        System.out.println(record);
+        String windowStart= TimeUtils.tsToString(context.window().getStart());
+        String windowEnd= TimeUtils.tsToString(context.window().getEnd());
+        String record= key +": 窗口开始时间: "+windowStart+" 窗口结束时间: "+windowEnd+" 窗口记录数: "+ i ;
+        System.out.println(record);
         collector.collect(list);
     }
 }

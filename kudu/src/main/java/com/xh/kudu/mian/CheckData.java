@@ -14,14 +14,12 @@ import java.util.List;
  */
 public class CheckData{
 
-//     "and db_name in ('fintech','brms','sxb_pro','shanghang_pro','hb_nuggets','lebei_pro'" +
-//             ",'nbcb_pro','pledgeapi_pro','pledge_pro','debit_factoring_pro','everestcenter_pro','alchemy_pro','debitceb_pro')  " +
+//     "and db_name in ('fintech','brms','sxb_pro','shanghang_pro','hb_nuggets','lebei_pro','nbcb_pro','pledgeapi_pro','pledge_pro','debit_factoring_pro','everestcenter_pro','alchemy_pro','debitceb_pro')  " +
     private static final String IMPORTANT_TABLE_SQL =
                     "select * from infinity_pro.f_important_table " +
                     "where valid = 1 and sync_data_status = 1 " +
-                            "and db_name in ('fintech','brms','sxb_pro','shanghang_pro','hb_nuggets','lebei_pro'" +
-                            ",'nbcb_pro','pledgeapi_pro','pledge_pro','debit_factoring_pro','everestcenter_pro','alchemy_pro','debitceb_pro')  " +
-                    "order by db_name desc ";
+                            "and db_name in ('alchemy_pro','debit_factoring_pro','nbcb_pro','shanghang_pro')  " +
+             "order by db_name desc ";
 
 //    private static final String IMPORTANT_TABLE_SQL =
 //            "select * from infinity_pro.f_important_table " +

@@ -21,11 +21,6 @@ public class TopKWindowFunction extends ProcessAllWindowFunction<Tuple2<Dml, Kud
             list.add(d);
             i++;
         }
-//        String windowStart=new DateTime(context.window().getStart(), DateTimeZone.forID("+08:00")).toString("yyyy-MM-dd HH:mm:ss");
-//        String windowEnd=new DateTime(context.window().getEnd(), DateTimeZone.forID("+08:00")).toString("yyyy-MM-dd HH:mm:ss");
-//
-//        String record=" 窗口开始时间: "+windowStart+" 窗口结束时间: "+windowEnd+" 窗口记录数: "+ i ;
-//        System.out.println(record);
         collector.collect(list);
     }
 }

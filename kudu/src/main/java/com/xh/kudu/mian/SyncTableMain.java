@@ -23,30 +23,21 @@ public class SyncTableMain {
 
     public static void main(String[] args) throws SQLException, KuduException {
 
-        String bdName = "sxb_pro";
-        String table = "sxb_area_nation";
-        int partition = 2;
+        String bdName = "hb_nuggets";
+        String table = "" +
+                "hy_usr_credit_record_attachment," +
+                "loan_device_apply," +
+                "loan_device_apply_attachment," +
+                "loan_pkg_cfm_recpt_detail";
+        int partition = 8;
+        String[] tables = table.split(",");
+        for (int i = 0; i < tables.length; i++) {
+            System.out.println(tables[i]);
+            handle(bdName,tables[i],partition);
+        }
+    }
 
-//        hebao_pre_auth_apply --ok
-//        hebao_pre_cash_task_detail --ok
-//        order_alchemy_info --ok
-//        order_cash_card_info --ok
-//        order_pre_auth_info --ok
-//        sxb_active --ok
-//        sxb_active_citys --ok
-//                sxb_active_merch --ok
-//        sxb_active_periods --ok
-//                sxb_active_product
-//        sxb_ali_payment
-//                sxb_ali_payment_detail
-//        sxb_amount_periods
-//                sxb_amount_product
-//        sxb_area -- 主键问题
-
-//                sxb_area_nation -- 主键问题
-//        sxb_hebao_account
-//                sxb_order_apply
-//        sxb_orders
+    private static void handle(String bdName,String table,int partition) throws SQLException, KuduException {
 
         // 检查hive 与mysql 字段是否一致
         DbOperationImpl dbOperation = new DbOperationImpl();
@@ -74,7 +65,6 @@ public class SyncTableMain {
         createKudu(bdName,table,targetTable,pk,partition,columns);
         updateTableConfig(bdName,table,pk,StringUtils.join(columns,","),targetTable);
     }
-
     /**
      * 通过impala验证、创建、初始化kudu表
      * @param dbKey
