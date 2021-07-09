@@ -1,6 +1,7 @@
 package com.xh.flink.binlogkafkakudu.support;
 
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -283,6 +284,9 @@ public class KuduTemplate {
                     break;
                 case FLOAT:
                     row.addFloat(colName, Float.parseFloat(rowValue));
+                    break;
+                case DECIMAL:
+                    row.addDecimal(colName, new BigDecimal(rowValue));
                     break;
                 case DOUBLE:
                     row.addDouble(colName, Double.parseDouble(rowValue));
